@@ -15,7 +15,8 @@ class DataFeatures:
         # TODO logic for switching datset
         self.get_tfidf()
         self.get_wc()
-        print(self.tfidf_matrix)
+        self.get_nlfeatures()
+
         self.fname = dataset + 'features.pkl'
         self.save()
 
@@ -92,7 +93,6 @@ def load_weebit():
 def load_one_stop():
     # TODO 
     return pd.read_csv('')
-
 
 def prep_onestop():
     pass

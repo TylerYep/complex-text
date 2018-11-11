@@ -11,8 +11,11 @@ from sklearn.model_selection import train_test_split
 
 class DataFeatures:
     def __init__(self, dataset):
-        #self.raw = pd.read_csv()
+        self.raw = load_weebit()
         # TODO logic for switching datset
+        self.get_tfidf()
+        self.get_wc()
+        print(self.tfidf_matrix)
         self.fname = dataset + 'features.pkl'
         self.save()
 
@@ -20,22 +23,32 @@ class DataFeatures:
         util.save_pkl(self.fname, self)
 
 
-    def get_tfidf(self):
+    def get_tfidf(self, tfidf_params={}):
         '''
         Returns
             tfidf array
         '''
         # Operate on training only for fitting
-        tfidf = TfidfVectorizer()
-        pass
+        df = self.raw
+        train = df[df.split == 0]
+        tfidf = TfidfVectorizer(**tfidf_params)
+        tfidf.fit(train.text)
+        self.tfidf = tfidf
+        self.tfidf_matrix = tfidf.transform(df.text)
+        return self.tfidf_matrix
 
-    def get_wc(self):
+    def get_wc(self, count_params={}):
         '''
         Returns
             word count array
         '''
-        
-        pass
+        df = self.raw
+        train = df[df.split == 0]
+        count = CountVectorizer(**count_params)
+        count.fit(train.text)
+        self.wc = count
+        self.count_matrix = count.transform(df.text)
+        return self.count_matrix
 
     def get_nlfeatures(self):
         '''
@@ -68,10 +81,17 @@ def prep_weebit():
 
     df = pd.DataFrame(data)
     df.columns = ['text', 'level', 'fname']
-    df.to_csv('weebit.csv', index=False)
+    df['split'] = np.random.choice(3, len(df), p=[0.8, 0.1,0.1])
+    df.to_csv('../data/weebit/weebit.csv', index=False)
 
-    # TODO add in the train test labels and save csv in the future forget about the original txt files
     return df
+
+def load_weebit():
+    return pd.read_csv('../data/weebit/weebit.csv')
+
+def load_one_stop():
+    # TODO 
+    return pd.read_csv('')
 
 
 def prep_onestop():
@@ -79,10 +99,8 @@ def prep_onestop():
 
 if __name__ == "__main__":
 
-    prep_weebit()
-    x = pd.read_csv('weebit.csv')
-    print(x.iloc[7]['text'])
-    #x = DataFeatures('weebit')
-    #util.save_pkl('wef', x)
+    #x = prep_weebit()
     #print(x)
+    x = DataFeatures('weebit')
+
 

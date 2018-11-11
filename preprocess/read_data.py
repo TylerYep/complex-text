@@ -11,8 +11,7 @@ from sklearn.model_selection import train_test_split
 
 class DataFeatures:
     def __init__(self, dataset):
-        self.raw = load_weebit()
-        #self.raw = load_onestop()
+        #self.raw = pd.read_csv()
         # TODO logic for switching datset
         self.fname = dataset + 'features.pkl'
         self.save()
@@ -26,6 +25,7 @@ class DataFeatures:
         Returns
             tfidf array
         '''
+        # Operate on training only for fitting
         tfidf = TfidfVectorizer()
         pass
 
@@ -51,7 +51,7 @@ class DataFeatures:
 def feature_extract():
     pass
 
-def load_weebit():
+def prep_weebit():
     data = []
     weebit_dir = '../data/weebit/WeeBit-TextOnly/'
     difficulty_levels = ['WRLevel2', 'WRLevel3', 'WRLevel4']
@@ -62,21 +62,27 @@ def load_weebit():
         for t in texts:
             with open(os.path.join(path, t),  'r', encoding = "ISO-8859-1") as myfile:
                 this_text = myfile.read().replace('\n', ' ')
+                this_text = this_text.replace('All trademarks and logos are property of Weekly Reader Corporation.', '')
                 this_text = ftfy.fix_text(this_text)
                 data.append((this_text, int(difficulty[-1]), t))
 
     df = pd.DataFrame(data)
     df.columns = ['text', 'level', 'fname']
+    df.to_csv('weebit.csv', index=False)
 
-
+    # TODO add in the train test labels and save csv in the future forget about the original txt files
     return df
 
 
-def load_onestop():
+def prep_onestop():
     pass
 
 if __name__ == "__main__":
-    x = DataFeatures('weebit')
-    util.save_pkl('wef', x)
-    print(x)
+
+    prep_weebit()
+    x = pd.read_csv('weebit.csv')
+    print(x.iloc[7]['text'])
+    #x = DataFeatures('weebit')
+    #util.save_pkl('wef', x)
+    #print(x)
 

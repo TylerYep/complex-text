@@ -1,18 +1,13 @@
 import pickle
 import numpy as np
 import sklearn 
-import os 
 import pandas as pd
 import ftfy
-
-def save_pkl(fname, obj):
-    with open(fname, 'wb') as f:
-        pickle.dump(obj, f)
-
-
-def load_pkl(fname):
-    with open(fname, 'rb') as f:
-        return pickle.load(f)
+import os, sys
+sys.path.append('../')
+import util
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.model_selection import train_test_split
 
 class DataFeatures:
     def __init__(self, dataset):
@@ -23,7 +18,7 @@ class DataFeatures:
         self.save()
 
     def save(self):
-        save_pickle(self.fname, self)
+        util.save_pkl(self.fname, self)
 
 
     def get_tfidf(self):
@@ -31,6 +26,7 @@ class DataFeatures:
         Returns
             tfidf array
         '''
+        tfidf = TfidfVectorizer()
         pass
 
     def get_wc(self):
@@ -41,7 +37,7 @@ class DataFeatures:
         
         pass
 
-    def get_nlp(self):
+    def get_nlfeatures(self):
         '''
 
         Arguments
@@ -71,6 +67,8 @@ def load_weebit():
 
     df = pd.DataFrame(data)
     df.columns = ['text', 'level', 'fname']
+
+
     return df
 
 
@@ -79,5 +77,6 @@ def load_onestop():
 
 if __name__ == "__main__":
     x = DataFeatures('weebit')
+    util.save_pkl('wef', x)
     print(x)
 

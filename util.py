@@ -1,4 +1,5 @@
 import pickle
+
 def save_pkl(fname, obj):
     with open(fname, 'wb') as f:
         pickle.dump(obj, f)

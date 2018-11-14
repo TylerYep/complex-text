@@ -1,24 +1,26 @@
 import pickle
 import numpy as np
-import sklearn 
+import sklearn
 import pandas as pd
 import ftfy
 import os, sys
+import spacy
 sys.path.append('../')
 import util
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import train_test_split
+from collections import Counter, defaultdict
 
 class DataFeatures:
     def __init__(self, dataset):
         self.raw = load_weebit()
         # TODO logic for switching datset
-        self.get_tfidf()
-        self.get_wc()
+        # self.get_tfidf()
+        # self.get_wc()
         self.get_nlfeatures()
 
-        self.fname = dataset + 'features.pkl'
-        self.save()
+        # self.fname = dataset + '_features.pkl'
+        # self.save()
 
     def save(self):
         util.save_pkl(self.fname, self)
@@ -53,13 +55,46 @@ class DataFeatures:
 
     def get_nlfeatures(self):
         '''
-
         Arguments
-
         Returns
         Dictionary of feature name to value.
         '''
-        pass
+        # Function to check if the token is a noise or not
+        def isNoise(token, noisy_pos_tags = ['PROP'], min_token_length = 2):
+            return token.pos_ in noisy_pos_tags or token.is_stop or len(token.string) <= min_token_length
+
+        def cleanup(token, lower = True):
+            if lower:
+               token = token.lower()
+            return token.strip()
+
+
+        nlp = spacy.load('en')
+        documents = self.raw['text'].apply(nlp)
+        # df = pd.DataFrame(documents)
+        # df.columns = ['nl-features']
+        # df.to_csv('../data/tyler-bit.csv', index=False)
+        # df = pd.read_csv('../data/tyler-bit.csv')
+        # print(self.raw)
+        feature_matrix = []
+        for doc in documents: # df['nl-features']:
+            feats = dict()
+            noun_chunks = list(doc.noun_chunks)
+            sentences = list(doc.sents)
+            all_tag_counts = defaultdict(int) # {w.pos_: w.pos for w in doc}
+            for w in doc:
+                all_tag_counts[w.pos_] += 1
+            cleaned_list = [cleanup(word.string) for word in doc if not isNoise(word)]
+            Counter(cleaned_list).most_common(5)
+
+            feats['num_nouns'] = len(noun_chunks)
+            feats['num_sents'] = len(sentences)
+            for tag, count in all_tag_counts.items():
+                feats[tag] = count
+            feature_matrix.append(feats)
+            print(feats)
+        return feats
+
 
 # Extract features (use spacy)
 def feature_extract():
@@ -84,23 +119,23 @@ def prep_weebit():
     df.columns = ['text', 'level', 'fname']
     df['split'] = np.random.choice(3, len(df), p=[0.8, 0.1,0.1])
     df.to_csv('../data/weebit/weebit.csv', index=False)
-
+#   train, test = train_test_split(df, test_size=0.33, random_state=42)
     return df
 
 def load_weebit():
     return pd.read_csv('../data/weebit/weebit.csv')
 
 def load_one_stop():
-    # TODO 
+    # TODO
     return pd.read_csv('')
 
 def prep_onestop():
     pass
 
 if __name__ == "__main__":
-
-    #x = prep_weebit()
-    #print(x)
+    # prep_weebit()
     x = DataFeatures('weebit')
+    x.get_nlfeatures()
 
-
+    #util.save_pkl('wef', x)
+    #print(x)

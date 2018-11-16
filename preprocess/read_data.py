@@ -11,15 +11,30 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from collections import Counter, defaultdict
 
+features = ['word count', 'tfidf', 'nl']
+
 class DataFeatures:
     def __init__(self, dataset):
         self.raw = load_weebit()
         # TODO logic for switching datset
-        self.get_tfidf()
-        self.get_wc()
-        self.nl_matrix = self.get_nlfeatures()
+
+        self.count_matrix, self.tfidf_matrix = None, None
+
+        #self.get_tfidf()   # These two are fast and should just be called everytime
+        #self.get_wc()      # with different options.
+
+        #self.nl_matrix = self.get_nlfeatures()
+
         self.fname = dataset + '_features.pkl'
+        self.get_indices()
+        self.f_dict = dict(zip(features, [self.count_matrix, self.tfidf_matrix, self.nl_matrix]))
+        self.labels = self.raw.level
         self.save()
+
+    def get_indices(self):
+        self.train_indices = self.raw[self.raw.split == 0].index
+        self.val_indices = self.raw[self.raw.split == 1].index
+        self.test_indices = self.raw[self.raw.split == 2].index
 
     def save(self):
         util.save_pkl(self.fname, self)
@@ -126,7 +141,6 @@ def prep_onestop():
     pass
 
 if __name__ == "__main__":
+    pass
     # prep_weebit()
-    x = DataFeatures('weebit')
-    #util.save_pkl('wef', x)
-    #print(x)
+    #x = DataFeatures('weebit')

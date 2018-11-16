@@ -15,16 +15,14 @@ class DataFeatures:
     def __init__(self, dataset):
         self.raw = load_weebit()
         # TODO logic for switching datset
-        # self.get_tfidf()
-        # self.get_wc()
-        self.get_nlfeatures()
-
-        # self.fname = dataset + '_features.pkl'
-        # self.save()
+        self.get_tfidf()
+        self.get_wc()
+        self.nl_matrix = self.get_nlfeatures()
+        self.fname = dataset + '_features.pkl'
+        self.save()
 
     def save(self):
         util.save_pkl(self.fname, self)
-
 
     def get_tfidf(self, tfidf_params={}):
         '''
@@ -92,13 +90,8 @@ class DataFeatures:
             for tag, count in all_tag_counts.items():
                 feats[tag] = count
             feature_matrix.append(feats)
-            print(feats)
-        return feats
 
-
-# Extract features (use spacy)
-def feature_extract():
-    pass
+        return feature_matrix
 
 def prep_weebit():
     data = []
@@ -135,7 +128,5 @@ def prep_onestop():
 if __name__ == "__main__":
     # prep_weebit()
     x = DataFeatures('weebit')
-    x.get_nlfeatures()
-
     #util.save_pkl('wef', x)
     #print(x)

@@ -8,7 +8,6 @@ import util
 
 x = util.load_pkl('weebitfeatures.pkl')
 print(x.tfidf)
-#TODO make this a jupyter notebook
 
 
 

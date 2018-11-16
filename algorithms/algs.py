@@ -9,13 +9,16 @@ sys.path.append('../')
 sys.path.append('../preprocess')
 import util
 from read_data import DataFeatures
-from collections import Counter, defaultdict
+#TODO import all the algs
+
 wb_path = '../preprocess/weebit_features.pkl'
+features = ['word count', 'tfidf', 'nl']
 
 class Algorithm:
-    def __init__(self, name, clf, clf_options={}):
+    def __init__(self, name, model, clf_options={}):
         self.name = name
-        self.clf = clf(clf_options**)
+        self.model = model
+        self.clf = self.model(**clf_options)
         self.results = {} # i.e. {'wc, min_df=5': results} 
 
     def get_fname(self):
@@ -36,33 +39,42 @@ class Algorithm:
         return #TODO
 
     def test(self, data):
+        #TODO implement
         # Returns test_error, precision recall thing
         pass
 
 
-def run(name, clf, data, features, clf_options={}, wc_params={}, tfidf_params={}):
-    #TODO If name already exists, load it
-    alg = Algorithm(name, clf, clf_options)
+    def run(self, data, features, clf_options={}, wc_params={}, tfidf_params={}):
+        # features \subset ['word count', 'tfidf', 'nl']
 
-    #if something something in features: 
-    data.get_wc(wc_params)
-    data.get_tfidf(tfidf_params)
+        #if something something in features: 
+        self.clf = self.model(**clf_options)
+        data.get_wc(wc_params)
+        data.get_tfidf(tfidf_params)
 
-    features = [data.f_dict[f] for f in features]
-    # TODO do a join here.
+        features = [data.f_dict[f] for f in features]
+        # TODO do a join here.
 
-    train = features[data.train_indices]
-    val = features[data.val_indices]
+        train = features[data.train_indices]
+        val = features[data.val_indices]
 
-    train_err = alg.train(train)
-    test_err = alg.test(val)
+        train_err = self.train(train)
+        test_err = self.test(val)
 
-    alg.update_results(results, wc_params, tfidf_params)
-    alg.save()
+        self.update_results(results, wc_params, tfidf_params)
+        self.save()
 
+def get_results(alg, data, features, options_c, options_wc, options_tfidf):
+    # for c in options_c: for f in features ...
+    #   alg.run(data, f, c, wc, tfdf)
+    # TODO
+    pass
+
+def compare_models():
+    # for name, clf in ...: get_results(alg)
+    # TODO 
+    pass
 
 if __name__ == "__main__":
-    wb = util.load_pkl(wb_path)
-    wb.get_indices()
-
+    pass
 

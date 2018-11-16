@@ -27,9 +27,11 @@ class DataFeatures:
 
         self.fname = dataset + '_features.pkl'
         self.get_indices()
-        self.f_dict = dict(zip(features, [self.count_matrix, self.tfidf_matrix, self.nl_matrix]))
         self.labels = self.raw.level
         self.save()
+
+    def get_f_dict(self):
+        return dict(zip(features, [self.count_matrix, self.tfidf_matrix, self.nl_matrix]))
 
     def get_indices(self):
         self.train_indices = self.raw[self.raw.split == 0].index

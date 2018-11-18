@@ -9,60 +9,99 @@ sys.path.append('../')
 sys.path.append('../preprocess')
 import util
 from read_data import DataFeatures
-#TODO import all the algs
 
+from sklearn.preprocessing import StandardScaler
+from sklearn.datasets import make_moons, make_circles, make_classification
+from sklearn.neural_network import MLPClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.gaussian_process.kernels import RBF
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from sklearn.metrics import precision_recall_fscore_support
+from sklearn.dummy import DummyClassifier
+
+
+names = ["Nearest_Neighbors", "Linear_SVM", "RBF_SVM", "Gaussian_Process",
+         "Decision_Tree", "Random_Forest", "Neural_Net", "AdaBoost",
+         "Naive_Bayes", "QDA", "Logistic_Regression", 'Dummy']
+
+models = [KNeighborsClassifier, SVC, SVC, GaussianProcessClassifier, DecisionTreeClassifier,
+    RandomForestClassifier, MLPClassifier, AdaBoostClassifier, GaussianNB,
+    QuadraticDiscriminantAnalysis, LogisticRegression, Dummy]
+
+model_dict = dict(zip(names, models)) # Probably useful at some point 
 wb_path = '../preprocess/weebit_features.pkl'
 features = ['word count', 'tfidf', 'nl']
+results_headers = ['features', 'clf_options', 'wc_params', 'tfidf_params', 'train_acc', 'test_acc', 'prfs']
+
+def get_acc(true, pred):
+    return(np.mean(true == pred))
 
 class Algorithm:
-    def __init__(self, name, model, clf_options={}):
+    def __init__(self, name, model):
         self.name = name
         self.model = model
-        self.clf = self.model(**clf_options)
-        self.results = {} # i.e. {'wc, min_df=5': results} 
+        self.results = pd.DataFrame(columns=results_headers)
 
     def get_fname(self):
-        fname = name + str(clf_options)
+        fname = self.name
         fname += '.pkl'
+        return os.path.join('results', fname)
 
-    def update_results(self, results, wc_params, tfidf_params):
-        # TODO create a id string from clf_options, wc_params, and tfidf_params
-        # set self.results
-        pass
+    def save(self):
+        util.save_pkl(self.get_fname(), self)
 
     def predict(self, x):
         return self.clf.predict(x)
 
-    def train(self, data):
-        # Returns train_error if possible?
-        self.clf.fit(data)
-        return #TODO
+    def train(self, x, y):
+        self.clf.fit(x, y)
+        preds = self.predict(x)
+        return get_acc(y, preds)
 
-    def test(self, data):
-        #TODO implement
-        # Returns test_error, precision recall thing
-        pass
+    def eval(self, x, y):
+        predictions = self.predict(x)
+        test_error = get_acc(y, predictions)
+        prfs = precision_recall_fscore_support(y, predictions)
+        return test_error, prfs
 
 
-    def run(self, data, features, clf_options={}, wc_params={}, tfidf_params={}):
+    def run(self, data: DataFeatures, features, clf_options={}, wc_params={}, tfidf_params={}):
         # features \subset ['word count', 'tfidf', 'nl']
+        # Requires python >= 3.6 
 
         #if something something in features: 
         self.clf = self.model(**clf_options)
         data.get_wc(wc_params)
         data.get_tfidf(tfidf_params)
+        f_dict = data.get_f_dict()
 
-        features = [data.f_dict[f] for f in features]
-        # TODO do a join here.
+        X = [f_dict[f] for f in features]
+        X = np.concatenate(tuple(X), axis=1)
+        print(X.shape)
 
-        train = features[data.train_indices]
-        val = features[data.val_indices]
+        train_x = X[data.train_indices]
+        train_y = data.labels[data.train_indices]
+        val_x = X[data.val_indices]
+        val_y = data.labels[data.val_indices]
 
-        train_err = self.train(train)
-        test_err = self.test(val)
+        train_acc = self.train(train_x, train_y)
+        test_acc, prfs = self.eval(val_x, val_y)
+        
+        # Add a row to results
+        self.results.loc[len(self.results)] = (str(features), str(clf_options),
+                            str(wc_params), tfidf_params, train_acc, test_acc, prfs)
 
-        self.update_results(results, wc_params, tfidf_params)
         self.save()
+
+    def to_csv(self):
+        self.results.to_csv(os.path.join('results', self.name + '.csv'), index=False)
+
 
 def get_results(alg, data, features, options_c, options_wc, options_tfidf):
     # for c in options_c: for f in features ...
@@ -72,9 +111,17 @@ def get_results(alg, data, features, options_c, options_wc, options_tfidf):
 
 def compare_models():
     # for name, clf in ...: get_results(alg)
-    # TODO 
+    # TODO Actually we should probably just try each classifier seperately
+    # b/c they all have different parameters to experiment with.
     pass
 
 if __name__ == "__main__":
+    a = Algorithm('LR', LogisticRegression)
+    data = util.load_pkl(wb_path)
+    a.run(data, ['word count', 'tfidf'])
+    a.run(data, ['word count'], wc_params={'min_df':5})
+    a.run(data, ['tfidf'], tfidf_params={'min_df':5})
+    a.to_csv()
+
     pass
 

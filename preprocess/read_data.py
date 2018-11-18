@@ -27,7 +27,7 @@ class DataFeatures:
 
         self.fname = dataset + '_features.pkl'
         self.get_indices()
-        self.labels = self.raw.level
+        self.labels = self.raw.level.values
         self.save()
 
     def get_f_dict(self):
@@ -52,7 +52,7 @@ class DataFeatures:
         tfidf = TfidfVectorizer(**tfidf_params)
         tfidf.fit(train.text)
         self.tfidf = tfidf
-        self.tfidf_matrix = tfidf.transform(df.text)
+        self.tfidf_matrix = tfidf.transform(df.text).todense()
         return self.tfidf_matrix
 
     def get_wc(self, count_params={}):
@@ -65,7 +65,7 @@ class DataFeatures:
         count = CountVectorizer(**count_params)
         count.fit(train.text)
         self.wc = count
-        self.count_matrix = count.transform(df.text)
+        self.count_matrix = count.transform(df.text).todense()
         return self.count_matrix
 
     def get_nlfeatures(self):
@@ -146,3 +146,5 @@ if __name__ == "__main__":
     pass
     # prep_weebit()
     #x = DataFeatures('weebit')
+    x = util.load_pkl('weebit_features.pkl')
+    x.__init__('weebit')

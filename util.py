@@ -1,5 +1,5 @@
 import pickle
-
+import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.datasets import make_moons, make_circles, make_classification
 from sklearn.neural_network import MLPClassifier
@@ -28,6 +28,9 @@ models = [KNeighborsClassifier, SVC, GaussianProcessClassifier, DecisionTreeClas
     LogisticRegression, DummyClassifier]
 
 model_dict = dict(zip(names, models))
+
+def get_acc(true, pred):
+    return(np.mean(true == pred))
 
 def save_pkl(fname, obj):
     with open(fname, 'wb') as f:

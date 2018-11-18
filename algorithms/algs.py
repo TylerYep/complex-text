@@ -27,8 +27,6 @@ RandomForestClassifier
 MLP
 AdaBoost
 """
-def get_acc(true, pred):
-    return(np.mean(true == pred))
 
 def load_alg(name):
 
@@ -64,11 +62,11 @@ class Algorithm:
     def train(self, x, y):
         self.clf.fit(x, y)
         preds = self.predict(x)
-        return get_acc(y, preds)
+        return util.get_acc(y, preds)
 
     def eval(self, x, y):
         predictions = self.predict(x)
-        test_error = get_acc(y, predictions)
+        test_error = util.get_acc(y, predictions)
         prfs = precision_recall_fscore_support(y, predictions)
         return test_error, prfs
 

@@ -3,15 +3,14 @@ import numpy as np
 import sklearn
 import pandas as pd
 import ftfy
-import os, sys
 import spacy
-sys.path.append('../')
-import util
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from collections import Counter, defaultdict
 
-features = ['word count', 'tfidf', 'nl']
+import os, sys
+sys.path.append('../')
+import util
 
 class DataFeatures:
     def __init__(self, dataset):
@@ -30,7 +29,7 @@ class DataFeatures:
         self.save()
 
     def get_f_dict(self):
-        return dict(zip(features, [self.count_matrix, self.tfidf_matrix, self.nl_matrix]))
+        return dict(zip(util.features, [self.count_matrix, self.tfidf_matrix, self.nl_matrix]))
 
     def get_indices(self):
         self.train_indices = self.raw[self.raw.split == 0].index

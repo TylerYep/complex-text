@@ -10,30 +10,10 @@ sys.path.append('../')
 import util
 sys.path.append('../preprocess')
 
-#Harry
-"""
-LogisticRegression
-DummyClassifier
-SVM
-Naive_Bayes
-GaussianProccess
-"""
-
-#Tyler
-"""
-KNeighbours
-DecisionTreeClassifier
-RandomForestClassifier
-MLP
-AdaBoost
-"""
-
 def load_alg(name):
-
     path = 'results/' + name +'.pkl'
     if os.path.isfile(path):
         return util.load_pkl(path)
-
     return Algorithm(name, util.model_dict[name])
 
 class Algorithm:
@@ -109,7 +89,8 @@ class Algorithm:
         self.results.to_csv(os.path.join('results', self.name + '.csv'), index=False)
 
 def combine_csv():
-    # Loops through all the kinds of algorithms and creates a combined csv
+    # Loops through Algorithms and creates a combined csv of results
+
     files = [os.path.join('results', f) for f in os.listdir('results') if '.pkl' in f]
     algs = [util.load_pkl(f) for f in files]
     combined_results = pd.concat([a.results for a in algs])

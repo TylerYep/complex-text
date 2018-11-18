@@ -43,6 +43,3 @@ if __name__ == "__main__":
     #a.run(data, ['tfidf'], tfidf_params={'min_df':5})
     a.to_csv()
 
-
-
-

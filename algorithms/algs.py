@@ -26,21 +26,47 @@ from sklearn.metrics import precision_recall_fscore_support
 from sklearn.dummy import DummyClassifier
 
 
-names = ["Nearest_Neighbors", "Linear_SVM", "RBF_SVM", "Gaussian_Process",
+names = ["Nearest_Neighbors", "SVM", "Gaussian_Process",
          "Decision_Tree", "Random_Forest", "Neural_Net", "AdaBoost",
-         "Naive_Bayes", "QDA", "Logistic_Regression", 'Dummy']
+         "Naive_Bayes", "Logistic_Regression", 'Dummy']
 
-models = [KNeighborsClassifier, SVC, SVC, GaussianProcessClassifier, DecisionTreeClassifier,
+models = [KNeighborsClassifier, SVC, GaussianProcessClassifier, DecisionTreeClassifier,
     RandomForestClassifier, MLPClassifier, AdaBoostClassifier, GaussianNB,
-    QuadraticDiscriminantAnalysis, LogisticRegression, Dummy]
+    LogisticRegression, DummyClassifier]
 
-model_dict = dict(zip(names, models)) # Probably useful at some point 
+
+#Harry 
+"""
+LogisticRegression 
+DummyClassifier
+SVM
+Naive_Bayes
+GaussianProccess
+"""
+
+#Tyler
+"""
+KNeighbours
+DecisionTreeClassifier
+RandomForestClassifier
+MLP
+AdaBoost
+"""
+
+model_dict = dict(zip(names, models))
 wb_path = '../preprocess/weebit_features.pkl'
 features = ['word count', 'tfidf', 'nl']
 results_headers = ['features', 'clf_options', 'wc_params', 'tfidf_params', 'train_acc', 'test_acc', 'prfs']
 
 def get_acc(true, pred):
     return(np.mean(true == pred))
+
+def load_alg(name):
+    path = 'results/' + name +'.pkl'
+    if os.path.isfile(path): 
+        return util.load_pkl(path)
+
+    return Algorithm(name, model_dict[name])
 
 class Algorithm:
     def __init__(self, name, model):
@@ -72,18 +98,15 @@ class Algorithm:
 
 
     def run(self, data: DataFeatures, features, clf_options={}, wc_params={}, tfidf_params={}):
-        # features \subset ['word count', 'tfidf', 'nl']
-        # Requires python >= 3.6 
-
-        #if something something in features: 
         self.clf = self.model(**clf_options)
-        data.get_wc(wc_params)
-        data.get_tfidf(tfidf_params)
-        f_dict = data.get_f_dict()
+        if 'word count' in features:
+            data.get_wc(wc_params)
+        if 'tfidf' in features:
+            data.get_tfidf(tfidf_params)
 
+        f_dict = data.get_f_dict()
         X = [f_dict[f] for f in features]
         X = np.concatenate(tuple(X), axis=1)
-        print(X.shape)
 
         train_x = X[data.train_indices]
         train_y = data.labels[data.train_indices]
@@ -116,12 +139,10 @@ def compare_models():
     pass
 
 if __name__ == "__main__":
-    a = Algorithm('LR', LogisticRegression)
+    a = load_alg('Dummy') 
     data = util.load_pkl(wb_path)
-    a.run(data, ['word count', 'tfidf'])
-    a.run(data, ['word count'], wc_params={'min_df':5})
+    a.run(data, ['word count', 'tfidf'],wc_params={'min_df':5}, tfidf_params={'min_df':5} )
+    a.run(data, ['word count'], wc_params={'min_df':4})
     a.run(data, ['tfidf'], tfidf_params={'min_df':5})
     a.to_csv()
-
-    pass
 

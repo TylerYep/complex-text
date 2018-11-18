@@ -1,13 +1,14 @@
 import pandas as pd
-import numpy as np 
+import numpy as np
 import matplotlib.pyplot as plt
-import sklearn 
+import sklearn
 import pickle
 import os, sys
 import spacy
+import util
+
 sys.path.append('../')
 sys.path.append('../preprocess')
-import util
 from read_data import DataFeatures
 
 from sklearn.preprocessing import StandardScaler
@@ -35,9 +36,9 @@ models = [KNeighborsClassifier, SVC, GaussianProcessClassifier, DecisionTreeClas
     LogisticRegression, DummyClassifier]
 
 
-#Harry 
+#Harry
 """
-LogisticRegression 
+LogisticRegression
 DummyClassifier
 SVM
 Naive_Bayes
@@ -63,7 +64,7 @@ def get_acc(true, pred):
 
 def load_alg(name):
     path = 'results/' + name +'.pkl'
-    if os.path.isfile(path): 
+    if os.path.isfile(path):
         return util.load_pkl(path)
 
     return Algorithm(name, model_dict[name])
@@ -115,7 +116,7 @@ class Algorithm:
 
         train_acc = self.train(train_x, train_y)
         test_acc, prfs = self.eval(val_x, val_y)
-        
+
         # Add a row to results
         self.results.loc[len(self.results)] = (str(features), str(clf_options),
                             str(wc_params), tfidf_params, train_acc, test_acc, prfs)
@@ -139,10 +140,9 @@ def compare_models():
     pass
 
 if __name__ == "__main__":
-    a = load_alg('Dummy') 
+    a = load_alg('Dummy')
     data = util.load_pkl(wb_path)
     a.run(data, ['word count', 'tfidf'],wc_params={'min_df':5}, tfidf_params={'min_df':5} )
     a.run(data, ['word count'], wc_params={'min_df':4})
     a.run(data, ['tfidf'], tfidf_params={'min_df':5})
     a.to_csv()
-

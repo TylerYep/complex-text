@@ -1,14 +1,15 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import sklearn
 import pickle
-import os, sys
 import spacy
-import util
+from sklearn.metrics import precision_recall_fscore_support
 
+import os, sys
 sys.path.append('../')
+import util
 sys.path.append('../preprocess')
+<<<<<<< HEAD
 from read_data import DataFeatures
 
 from sklearn.preprocessing import StandardScaler
@@ -42,14 +43,14 @@ results_headers = ['model_type', 'features', 'clf_options', 'wc_params', 'tfidf_
 
 def get_acc(true, pred):
     return(np.mean(true == pred))
+=======
+>>>>>>> 07a62c734c2184021ca011e16f4dec530d909a6f
 
 def load_alg(name):
-
     path = 'results/' + name +'.pkl'
     if os.path.isfile(path):
         return util.load_pkl(path)
-
-    return Algorithm(name, model_dict[name])
+    return Algorithm(name, util.model_dict[name])
 
 class Algorithm:
     def __init__(self, name, model):
@@ -77,16 +78,16 @@ class Algorithm:
     def train(self, x, y):
         self.clf.fit(x, y)
         preds = self.predict(x)
-        return get_acc(y, preds)
+        return util.get_acc(y, preds)
 
     def eval(self, x, y):
         predictions = self.predict(x)
-        test_error = get_acc(y, predictions)
+        test_error = util.get_acc(y, predictions)
         prfs = precision_recall_fscore_support(y, predictions)
         return test_error, prfs
 
 
-    def run(self, data: DataFeatures, features, clf_options={}, wc_params={}, tfidf_params={}):
+    def run(self, data, features, clf_options={}, wc_params={}, tfidf_params={}):
         """
         Arguments
             data: DataFeatures object
@@ -114,39 +115,27 @@ class Algorithm:
         test_acc, prfs = self.eval(val_x, val_y)
 
         # Add a row to results
-        self.results.loc[len(self.results)] = (self.name, str(features), str(clf_options),
-                            str(wc_params), tfidf_params, train_acc, test_acc, prfs)
-
+        row = (self.name, str(features), str(clf_options),
+                str(wc_params), tfidf_params, train_acc,
+                test_acc, prfs)
+        self.results.loc[len(self.results)] = row
         self.save()
 
     def to_csv(self):
         self.results.to_csv(os.path.join('results', self.name + '.csv'), index=False)
 
-
-def get_results(alg, data, features, options_c, options_wc, options_tfidf):
-    # for c in options_c: for f in features ...
-    #   alg.run(data, f, c, wc, tfdf)
-    # TODO
-    pass
-
-def compare_models():
-    # for name, clf in ...: get_results(alg)
-    # TODO Actually we should probably just try each classifier seperately
-    # b/c they all have different parameters to experiment with.
-    pass
-
 def combine_csv():
-    # Loops through all the kinds of algorithms and creates a combined csv
+    # Loops through Algorithms and creates a combined csv of results
+
     files = [os.path.join('results', f) for f in os.listdir('results') if '.pkl' in f]
     algs = [util.load_pkl(f) for f in files]
     combined_results = pd.concat([a.results for a in algs])
     combined_results.to_csv(os.path.join('results', 'combined_results.csv'), index=False)
 
 if __name__ == "__main__":
-    #a = load_alg('Logistic_Regression')
-    #data = util.load_pkl(wb_path)
-    #a.run(data, ['word count', 'tfidf'],wc_params={'min_df':5}, tfidf_params={'min_df':5} )
-    #a.run(data, ['word count'], wc_params={'min_df':4})
-    #a.run(data, ['tfidf'], tfidf_params={'min_df':5})
-    #a.to_csv()
-    combine_csv()
+    # Test with runner
+    pass
+
+
+
+

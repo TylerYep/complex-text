@@ -1,40 +1,14 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import sklearn
 import pickle
-import os, sys
 import spacy
-import util
-
-sys.path.append('../')
-sys.path.append('../preprocess')
-from read_data import DataFeatures
-
-from sklearn.preprocessing import StandardScaler
-from sklearn.datasets import make_moons, make_circles, make_classification
-from sklearn.neural_network import MLPClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.gaussian_process import GaussianProcessClassifier
-from sklearn.gaussian_process.kernels import RBF
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import GaussianNB
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.metrics import precision_recall_fscore_support
-from sklearn.dummy import DummyClassifier
 
-
-names = ["Nearest_Neighbors", "SVM", "Gaussian_Process",
-         "Decision_Tree", "Random_Forest", "Neural_Net", "AdaBoost",
-         "Naive_Bayes", "Logistic_Regression", 'Dummy']
-
-models = [KNeighborsClassifier, SVC, GaussianProcessClassifier, DecisionTreeClassifier,
-    RandomForestClassifier, MLPClassifier, AdaBoostClassifier, GaussianNB,
-    LogisticRegression, DummyClassifier]
-
+import os, sys
+sys.path.append('../')
+import util
+sys.path.append('../preprocess')
 
 #Harry
 """
@@ -53,12 +27,6 @@ RandomForestClassifier
 MLP
 AdaBoost
 """
-
-model_dict = dict(zip(names, models))
-wb_path = '../preprocess/weebit_features.pkl'
-features = ['word count', 'tfidf', 'nl']
-results_headers = ['model_type', 'features', 'clf_options', 'wc_params', 'tfidf_params', 'train_acc', 'test_acc', 'prfs']
-
 def get_acc(true, pred):
     return(np.mean(true == pred))
 
@@ -68,7 +36,7 @@ def load_alg(name):
     if os.path.isfile(path):
         return util.load_pkl(path)
 
-    return Algorithm(name, model_dict[name])
+    return Algorithm(name, util.model_dict[name])
 
 class Algorithm:
     def __init__(self, name, model):
@@ -105,7 +73,7 @@ class Algorithm:
         return test_error, prfs
 
 
-    def run(self, data: DataFeatures, features, clf_options={}, wc_params={}, tfidf_params={}):
+    def run(self, data, features, clf_options={}, wc_params={}, tfidf_params={}):
         """
         Arguments
             data: DataFeatures object
@@ -133,26 +101,14 @@ class Algorithm:
         test_acc, prfs = self.eval(val_x, val_y)
 
         # Add a row to results
-        self.results.loc[len(self.results)] = (self.name, str(features), str(clf_options),
-                            str(wc_params), tfidf_params, train_acc, test_acc, prfs)
-
+        row = (self.name, str(features), str(clf_options),
+                str(wc_params), tfidf_params, train_acc,
+                test_acc, prfs)
+        self.results.loc[len(self.results)] = row
         self.save()
 
     def to_csv(self):
         self.results.to_csv(os.path.join('results', self.name + '.csv'), index=False)
-
-
-def get_results(alg, data, features, options_c, options_wc, options_tfidf):
-    # for c in options_c: for f in features ...
-    #   alg.run(data, f, c, wc, tfdf)
-    # TODO
-    pass
-
-def compare_models():
-    # for name, clf in ...: get_results(alg)
-    # TODO Actually we should probably just try each classifier seperately
-    # b/c they all have different parameters to experiment with.
-    pass
 
 def combine_csv():
     # Loops through all the kinds of algorithms and creates a combined csv
@@ -162,10 +118,9 @@ def combine_csv():
     combined_results.to_csv(os.path.join('results', 'combined_results.csv'), index=False)
 
 if __name__ == "__main__":
-    #a = load_alg('Logistic_Regression')
-    #data = util.load_pkl(wb_path)
-    #a.run(data, ['word count', 'tfidf'],wc_params={'min_df':5}, tfidf_params={'min_df':5} )
-    #a.run(data, ['word count'], wc_params={'min_df':4})
-    #a.run(data, ['tfidf'], tfidf_params={'min_df':5})
-    #a.to_csv()
-    combine_csv()
+    # Test with runner
+    pass
+
+
+
+

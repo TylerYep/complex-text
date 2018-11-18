@@ -22,8 +22,7 @@ class DataFeatures:
 
         #self.get_tfidf()   # These two are fast and should just be called everytime
         #self.get_wc()      # with different options.
-
-        #self.nl_matrix = self.get_nlfeatures()
+        self.nl_matrix = self.get_nlfeatures()
 
         self.fname = dataset + '_features.pkl'
         self.get_indices()
@@ -80,35 +79,38 @@ class DataFeatures:
 
         def cleanup(token, lower = True):
             if lower:
-               token = token.lower()
+               return token.lower().strip()
             return token.strip()
 
-
+        print('Getting NLP Features...')
         nlp = spacy.load('en')
         documents = self.raw['text'].apply(nlp)
-        # df = pd.DataFrame(documents)
-        # df.columns = ['nl-features']
-        # df.to_csv('../data/tyler-bit.csv', index=False)
-        # df = pd.read_csv('../data/tyler-bit.csv')
-        # print(self.raw)
+
+        num_docs = 0
         feature_matrix = []
-        for doc in documents: # df['nl-features']:
-            feats = dict()
+        for doc in documents:
+            num_docs += 1
+            print(num_docs)
+
             noun_chunks = list(doc.noun_chunks)
             sentences = list(doc.sents)
-            all_tag_counts = defaultdict(int) # {w.pos_: w.pos for w in doc}
+            avg_sent_length = sum([len(sent) for sent in sentences]) / len(sentences)
+            all_tag_counts = defaultdict(int)
             for w in doc:
                 all_tag_counts[w.pos_] += 1
-            cleaned_list = [cleanup(word.string) for word in doc if not isNoise(word)]
-            Counter(cleaned_list).most_common(5)
+            # cleaned_list = [cleanup(word.string) for word in doc if not isNoise(word)]
+            # Counter(cleaned_list).most_common(5)
 
-            feats['num_nouns'] = len(noun_chunks)
-            feats['num_sents'] = len(sentences)
+            feats = []
             for tag, count in all_tag_counts.items():
-                feats[tag] = count
-            feature_matrix.append(feats)
+                feats.append(count)
+            feats.append(len(noun_chunks))          # num_noun_chunks
+            feats.append(len(sentences))            # num_sentences
+            feats.append(avg_sent_length)
+            print(feats)
+            feature_matrix.append(np.array(feats))
 
-        return feature_matrix
+        return np.array(feature_matrix)
 
 def prep_weebit():
     data = []
@@ -147,4 +149,3 @@ if __name__ == "__main__":
     #x = DataFeatures('weebit')
     x = util.load_pkl('weebit_features.pkl')
     x.__init__('weebit')
-

@@ -38,7 +38,9 @@ def get_results(alg: Algorithm, data, feature_lists, options_c, options_wc, opti
 if __name__ == "__main__":
     a = algs.load_alg('Naive_Bayes')
     data = util.load_pkl(wb_path)
-    a.run(data, ['word count', 'tfidf'],wc_params={'min_df':5}, tfidf_params={'min_df':5} )
+    print(data.nl_matrix)
+
+    #a.run(data, ['nl'],wc_params={'min_df':5}, tfidf_params={'min_df':5} )
     #a.run(data, ['word count'], wc_params={'min_df':4})
     #a.run(data, ['tfidf'], tfidf_params={'min_df':5})
     a.to_csv()

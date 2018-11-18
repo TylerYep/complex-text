@@ -68,6 +68,7 @@ class Algorithm:
 
         f_dict = data.get_f_dict()
         X = [f_dict[f] for f in features]
+        print(X)
         X = np.concatenate(tuple(X), axis=1)
 
         train_x = X[data.train_indices]

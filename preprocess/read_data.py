@@ -83,13 +83,16 @@ class DataFeatures:
 
         print('Getting NLP Features...')
         nlp = spacy.load('en')
-        documents = self.raw['text'].apply(nlp)
+        #documents = self.raw['text'].apply(nlp) # I removed this easier to debug
 
         num_docs = 0
         feature_matrix = []
-        for doc in documents:
+        for text in self.raw.text:
+            doc = nlp(text)
+
             num_docs += 1
-            print(num_docs)
+            if num_docs == 10:
+                break
 
             noun_chunks = list(doc.noun_chunks)
             sentences = list(doc.sents)
@@ -99,6 +102,8 @@ class DataFeatures:
                 all_tag_counts[w.pos_] += 1
             # cleaned_list = [cleanup(word.string) for word in doc if not isNoise(word)]
             # Counter(cleaned_list).most_common(5)
+            
+            #TODO do the zero thing, make columns consistent
 
             feats = []
             for tag, count in all_tag_counts.items():
@@ -106,8 +111,11 @@ class DataFeatures:
             feats.append(len(noun_chunks))          # num_noun_chunks
             feats.append(len(sentences))            # num_sentences
             feats.append(avg_sent_length)
-            print(feats)
-            feature_matrix.append(np.array(feats))
+            feature_matrix.append(feats) # Keep it as a list of lists (calling np.array on list of lists creates multidimensional array instead of a 1-d array of np arrays)
+
+            print(len(feats))
+
+        print(np.array(feature_matrix))
 
         return np.array(feature_matrix)
 

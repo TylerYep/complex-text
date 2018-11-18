@@ -7,9 +7,7 @@ import spacy
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from collections import Counter, defaultdict
-
 import os, sys
-sys.path.append('../')
 import util
 
 class DataFeatures:
@@ -23,7 +21,7 @@ class DataFeatures:
         #self.get_wc()      # with different options.
         self.nl_matrix = self.get_nlfeatures()
 
-        self.fname = dataset + '_features.pkl'
+        self.fname = 'preprocess/' + dataset + '_features.pkl'
         self.get_indices()
         self.labels = self.raw.level.values
         self.save()
@@ -121,7 +119,7 @@ class DataFeatures:
 
 def prep_weebit():
     data = []
-    weebit_dir = '../data/weebit/WeeBit-TextOnly/'
+    weebit_dir = 'data/weebit/WeeBit-TextOnly/'
     difficulty_levels = ['WRLevel2', 'WRLevel3', 'WRLevel4']
 
     for difficulty in  difficulty_levels:
@@ -137,11 +135,11 @@ def prep_weebit():
     df = pd.DataFrame(data)
     df.columns = ['text', 'level', 'fname']
     df['split'] = np.random.choice(3, len(df), p=[0.8, 0.1,0.1])
-    df.to_csv('../data/weebit/weebit.csv', index=False)
+    df.to_csv('data/weebit/weebit.csv', index=False)
     return df
 
 def load_weebit():
-    return pd.read_csv('../data/weebit/weebit.csv')
+    return pd.read_csv('data/weebit/weebit.csv')
 
 def load_one_stop():
     # TODO
@@ -154,5 +152,5 @@ if __name__ == "__main__":
     pass
     # prep_weebit()
     #x = DataFeatures('weebit')
-    x = util.load_pkl('weebit_features.pkl')
+    x = util.load_pkl('preprocess/weebit_features.pkl')
     x.__init__('weebit')

@@ -1,11 +1,12 @@
-import algs
-from algs import Algorithm
 import pandas as pd
 import numpy as np
-import os, sys
-sys.path.append('../')
 import util
-sys.path.append('../preprocess')
+
+import os, sys
+sys.path.append('preprocess')
+sys.path.append('algorithms')
+import algs
+from algs import Algorithm
 from read_data import DataFeatures
 
 
@@ -26,7 +27,7 @@ MLP
 AdaBoost
 """
 
-wb_path = '../preprocess/weebit_features.pkl'
+wb_path = 'preprocess/weebit_features.pkl'
 
 def get_results(alg: Algorithm, data, feature_lists, options_c, options_wc, options_tfidf):
     for f in feature_lists:

@@ -6,12 +6,11 @@ import spacy
 from sklearn.metrics import precision_recall_fscore_support
 
 import os, sys
-sys.path.append('../')
 import util
-sys.path.append('../preprocess')
+sys.path.append('preprocess')
 
 def load_alg(name):
-    path = 'results/' + name +'.pkl'
+    path = 'algorithms/results/' + name +'.pkl'
     if os.path.isfile(path):
         return util.load_pkl(path)
     return Algorithm(name, util.model_dict[name])
@@ -25,13 +24,13 @@ class Algorithm:
         """
         self.name = name
         self.model = model
-        self.results = pd.DataFrame(columns=results_headers)
+        self.results = pd.DataFrame(columns=util.results_headers)
 
     def get_fname(self):
         # Returns the file path to save
         fname = self.name
         fname += '.pkl'
-        return os.path.join('results', fname)
+        return os.path.join('algorithms/results', fname)
 
     def save(self):
         util.save_pkl(self.get_fname(), self)
@@ -61,10 +60,8 @@ class Algorithm:
             tfidf_params: dictionary of tfidf vecorizer params
         """
         self.clf = self.model(**clf_options)
-        if 'word count' in features:
-            data.get_wc(wc_params)
-        if 'tfidf' in features:
-            data.get_tfidf(tfidf_params)
+        if 'word count' in features: data.get_wc(wc_params)
+        if 'tfidf' in features: data.get_tfidf(tfidf_params)
 
         f_dict = data.get_f_dict()
         X = [f_dict[f] for f in features]
@@ -86,15 +83,14 @@ class Algorithm:
         self.save()
 
     def to_csv(self):
-        self.results.to_csv(os.path.join('results', self.name + '.csv'), index=False)
+        self.results.to_csv(os.path.join('algorithms/results', self.name + '.csv'), index=False)
 
 def combine_csv():
     # Loops through Algorithms and creates a combined csv of results
-
-    files = [os.path.join('results', f) for f in os.listdir('results') if '.pkl' in f]
+    files = [os.path.join('algorithms/results', f) for f in os.listdir('algorithms/results') if '.pkl' in f]
     algs = [util.load_pkl(f) for f in files]
     combined_results = pd.concat([a.results for a in algs])
-    combined_results.to_csv(os.path.join('results', 'combined_results.csv'), index=False)
+    combined_results.to_csv(os.path.join('algorithms/results', 'combined_results.csv'), index=False)
 
 if __name__ == "__main__":
     # Test with runner

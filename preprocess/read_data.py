@@ -129,7 +129,6 @@ def prep_weebit():
     df.columns = ['text', 'level', 'fname']
     df['split'] = np.random.choice(3, len(df), p=[0.8, 0.1,0.1])
     df.to_csv('../data/weebit/weebit.csv', index=False)
-#   train, test = train_test_split(df, test_size=0.33, random_state=42)
     return df
 
 def load_weebit():
@@ -148,3 +147,4 @@ if __name__ == "__main__":
     #x = DataFeatures('weebit')
     x = util.load_pkl('weebit_features.pkl')
     x.__init__('weebit')
+

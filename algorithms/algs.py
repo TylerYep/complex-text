@@ -35,25 +35,6 @@ models = [KNeighborsClassifier, SVC, GaussianProcessClassifier, DecisionTreeClas
     RandomForestClassifier, MLPClassifier, AdaBoostClassifier, GaussianNB,
     LogisticRegression, DummyClassifier]
 
-
-#Harry
-"""
-LogisticRegression
-DummyClassifier
-SVM
-Naive_Bayes
-GaussianProccess
-"""
-
-#Tyler
-"""
-KNeighbours
-DecisionTreeClassifier
-RandomForestClassifier
-MLP
-AdaBoost
-"""
-
 model_dict = dict(zip(names, models))
 wb_path = '../preprocess/weebit_features.pkl'
 features = ['word count', 'tfidf', 'nl']

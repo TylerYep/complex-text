@@ -8,9 +8,9 @@ models = [KNeighborsClassifier, SVC, GaussianProcessClassifier, DecisionTreeClas
     RandomForestClassifier, MLPClassifier, AdaBoostClassifier, GaussianNB,
     LogisticRegression, DummyClassifier]
 
-#Harry 
+#Harry
 """
-LogisticRegression 
+LogisticRegression
 DummyClassifier
 SVM
 Naive_Bayes
@@ -26,10 +26,12 @@ MLP
 AdaBoost
 """
 
+x = util.load_pkl('weebit_features.pkl')
+print(x.nl_matrix)
+
 def get_results(alg: algs.Algorithm, data, feature_lists, options_c, options_wc, options_tfidf):
     for f in feature_lists:
         for c in options_c:
-            for wc in options_wc: 
+            for wc in options_wc:
                 for t in options tfidf:
                     alg.run(data, f, c, wc, t)
-

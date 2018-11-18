@@ -9,42 +9,6 @@ import os, sys
 sys.path.append('../')
 import util
 sys.path.append('../preprocess')
-<<<<<<< HEAD
-from read_data import DataFeatures
-
-from sklearn.preprocessing import StandardScaler
-from sklearn.datasets import make_moons, make_circles, make_classification
-from sklearn.neural_network import MLPClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.gaussian_process import GaussianProcessClassifier
-from sklearn.gaussian_process.kernels import RBF
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import GaussianNB
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-from sklearn.metrics import precision_recall_fscore_support
-from sklearn.dummy import DummyClassifier
-
-
-names = ["Nearest_Neighbors", "SVM", "Gaussian_Process",
-         "Decision_Tree", "Random_Forest", "Neural_Net", "AdaBoost",
-         "Naive_Bayes", "Logistic_Regression", 'Dummy']
-
-models = [KNeighborsClassifier, SVC, GaussianProcessClassifier, DecisionTreeClassifier,
-    RandomForestClassifier, MLPClassifier, AdaBoostClassifier, GaussianNB,
-    LogisticRegression, DummyClassifier]
-
-model_dict = dict(zip(names, models))
-wb_path = '../preprocess/weebit_features.pkl'
-features = ['word count', 'tfidf', 'nl']
-results_headers = ['model_type', 'features', 'clf_options', 'wc_params', 'tfidf_params', 'train_acc', 'test_acc', 'prfs']
-
-def get_acc(true, pred):
-    return(np.mean(true == pred))
-=======
->>>>>>> 07a62c734c2184021ca011e16f4dec530d909a6f
 
 def load_alg(name):
     path = 'results/' + name +'.pkl'

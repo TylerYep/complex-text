@@ -57,12 +57,13 @@ AdaBoost
 model_dict = dict(zip(names, models))
 wb_path = '../preprocess/weebit_features.pkl'
 features = ['word count', 'tfidf', 'nl']
-results_headers = ['features', 'clf_options', 'wc_params', 'tfidf_params', 'train_acc', 'test_acc', 'prfs']
+results_headers = ['model_type', 'features', 'clf_options', 'wc_params', 'tfidf_params', 'train_acc', 'test_acc', 'prfs']
 
 def get_acc(true, pred):
     return(np.mean(true == pred))
 
 def load_alg(name):
+
     path = 'results/' + name +'.pkl'
     if os.path.isfile(path):
         return util.load_pkl(path)
@@ -71,11 +72,17 @@ def load_alg(name):
 
 class Algorithm:
     def __init__(self, name, model):
+        """
+        Args:
+            name: name of model
+            model: uninstantiated sklearn model
+        """
         self.name = name
         self.model = model
         self.results = pd.DataFrame(columns=results_headers)
 
     def get_fname(self):
+        # Returns the file path to save
         fname = self.name
         fname += '.pkl'
         return os.path.join('results', fname)
@@ -99,6 +106,14 @@ class Algorithm:
 
 
     def run(self, data: DataFeatures, features, clf_options={}, wc_params={}, tfidf_params={}):
+        """
+        Arguments
+            data: DataFeatures object
+            features: list of features (\subset ['word count', 'tfidf', 'nl'])
+            clf_options: dictionary of sklearn classifier options
+            wc_params: dictionary of count vectorizer params
+            tfidf_params: dictionary of tfidf vecorizer params
+        """
         self.clf = self.model(**clf_options)
         if 'word count' in features:
             data.get_wc(wc_params)
@@ -118,7 +133,7 @@ class Algorithm:
         test_acc, prfs = self.eval(val_x, val_y)
 
         # Add a row to results
-        self.results.loc[len(self.results)] = (str(features), str(clf_options),
+        self.results.loc[len(self.results)] = (self.name, str(features), str(clf_options),
                             str(wc_params), tfidf_params, train_acc, test_acc, prfs)
 
         self.save()
@@ -139,10 +154,18 @@ def compare_models():
     # b/c they all have different parameters to experiment with.
     pass
 
+def combine_csv():
+    # Loops through all the kinds of algorithms and creates a combined csv
+    files = [os.path.join('results', f) for f in os.listdir('results') if '.pkl' in f]
+    algs = [util.load_pkl(f) for f in files]
+    combined_results = pd.concat([a.results for a in algs])
+    combined_results.to_csv(os.path.join('results', 'combined_results.csv'), index=False)
+
 if __name__ == "__main__":
-    a = load_alg('Dummy')
-    data = util.load_pkl(wb_path)
-    a.run(data, ['word count', 'tfidf'],wc_params={'min_df':5}, tfidf_params={'min_df':5} )
-    a.run(data, ['word count'], wc_params={'min_df':4})
-    a.run(data, ['tfidf'], tfidf_params={'min_df':5})
-    a.to_csv()
+    #a = load_alg('Logistic_Regression')
+    #data = util.load_pkl(wb_path)
+    #a.run(data, ['word count', 'tfidf'],wc_params={'min_df':5}, tfidf_params={'min_df':5} )
+    #a.run(data, ['word count'], wc_params={'min_df':4})
+    #a.run(data, ['tfidf'], tfidf_params={'min_df':5})
+    #a.to_csv()
+    combine_csv()

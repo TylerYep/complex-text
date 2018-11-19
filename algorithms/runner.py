@@ -1,4 +1,5 @@
 import pandas as pd
+import scipy.stats
 import numpy as np
 import util
 import itertools
@@ -49,8 +50,8 @@ def bit_twiddle_params(a, data, features):
     # options = {'solver' : 'adam', 'activation': 'logistic', 'learning_rate': 'constant', 'learning_rate_init': 0.01
     #     }#,'n_iter_no_change': 100, 'max_iter': 300}
     # for eta in {0.00001, 0.0001, 0.001, 0.01, 0.1, 1}:
-    for eta in {0.2, 0.8}:
-        options = {'n_estimators': 150, 'learning_rate': eta}
+    for eta in {0.2}:
+        options = {'n_estimators': 50, 'learning_rate': eta}
         a.run(data, features, clf_options=options)
         a.to_csv()
         acc_train = a.results.loc[len(a.results) - 1].train_acc
@@ -63,18 +64,22 @@ def bit_twiddle_params(a, data, features):
 wc_opts = [{}, {'min_df':5}, {'max_df':0.8}, {'min_df':5, 'max_df':0.8}, {'min_df':5, 'max_df':0.8, 'binary':True}]
 tfidf_opts = [{}, {'min_df':5}, {'max_df':0.8}, {'min_df':5, 'max_df':0.8}]
 lr_opts = [{'penalty':'l1', 'C':1}, {'penalty':'l1', 'C':0.8}, {'penalty':'l1', 'C':0.6}, {'penalty':'l2', 'C':1}, {'penalty':'l2', 'C':0.8}, {'penalty':'l2', 'C':0.6}]
+lr_opts = [{'penalty':'l1', 'C':1}, {'penalty':'l1', 'C':0.8}, {'penalty':'l1', 'C':0.6}, {'penalty':'l2', 'C':1}, {'penalty':'l2', 'C':0.8}, {'penalty':'l2', 'C':0.6}]
+svm_opts = [ {'kernel':'rbf', 'C':1}, {'kernel':'rbf', 'C':0.8}, {'kernel':'rbf', 'C':0.6}, {'kernel':'linear', 'C':1}, {'kernel':'linear', 'C':0.8}, {'kernel':'linear', 'C':0.6} ]
 
-features = [[x] for x in util.features] + [['word count', 'nl'], ['tfidf', 'nl'], ['word count', 'tfidf'], ['word count', 'tfidf', 'nl']]
+features = [[x] for x in util.features] + [['word count', 'nl'], ['tfidf', 'nl']]#, ['word count', 'tfidf'], ['word count', 'tfidf', 'nl']]
 
 
 #names = ["Nearest_Neighbors", "SVM", "Gaussian_Process",
 #         "Decision_Tree", "Random_Forest", "Neural_Net", "AdaBoost",
 #         "Naive_Bayes", "Logistic_Regression", 'Dummy']
 if __name__ == "__main__":
-    a = algs.load_alg('AdaBoost')
+    a = algs.load_alg('SVM')
     data = util.load_pkl(wb_path)
-    bit_twiddle_params(a, data, ['word count', 'nl'])
-
+    # bit_twiddle_params(a, data, ['word count', 'nl'])
+    options = {}
+    a.run(data, ['word count', 'nl'], clf_options=options)
+    a.to_csv()
     # nn_opts = [{'solver': 'lbfgs', 'activation': 'relu', 'learning_rate': 'adaptive',
     # 'learning_rate_init': 0.01, 'n_iter_no_change': 100, 'max_iter': 300}]
     # a = algs.load_alg('Naive_Bayes')
@@ -89,3 +94,7 @@ if __name__ == "__main__":
     # get_results(a, data, [['word count', 'nl']], nn_opts, wc_opts, {})
     # #get_results(a, data, [['nl']], [{}], [{}], [{}]) Dummy: features ..etc don't matter
     # a.to_csv()
+    # param_dist = {'penalty':['l1', 'l2'], 'C':[10**i for i in range(-5, 5)]}
+    # a.search(data, param_dist, ['word count', 'nl'], {'min_df':5, 'max_df':0.8}, {})
+    # a.save()
+    # print(a.r.cv_results_)

@@ -86,15 +86,12 @@ class DataFeatures:
         print('Getting NLP Features...')
         nlp = spacy.load('en')
         #documents = self.raw['text'].apply(nlp)
-
         num_docs = 0
         feature_matrix = []
         for text in self.raw.text:
             doc = nlp(text)
 
             num_docs += 1
-            if num_docs == 10:
-                break
             POS_TAGS = [
                 "", "ADJ", "ADP", "ADV", "AUX", "CONJ",
                 "CCONJ", "DET", "INTJ", "NOUN", "NUM", "PART",
@@ -120,9 +117,6 @@ class DataFeatures:
             feats.append(len(sentences))            # num_sentences
             feats.append(avg_sent_length)
             feature_matrix.append(feats)
-            print(len(feats))
-
-        print(np.array(feature_matrix))
 
         return np.array(feature_matrix)
 
@@ -167,5 +161,5 @@ if __name__ == "__main__":
     pass
     # prep_weebit()
     #x = DataFeatures('weebit')
-    x = util.load_pkl('preprocess/weebit_features.pkl')
-    x.__init__('weebit')
+    #x = util.load_pkl('preprocess/weebit_features.pkl')
+    #x.__init__('weebit')

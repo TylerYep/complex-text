@@ -4,6 +4,7 @@ import sklearn
 import pickle
 import spacy
 from sklearn.metrics import precision_recall_fscore_support
+from sklearn.model_selection import RandomizedSearchCV
 
 import os, sys
 import util
@@ -63,12 +64,7 @@ class Algorithm:
             tfidf_params: dictionary of tfidf vecorizer params
         """
         self.clf = self.model(**clf_options)
-        if 'word count' in features: data.get_wc(wc_params)
-        if 'tfidf' in features: data.get_tfidf(tfidf_params)
-
-        f_dict = data.get_f_dict()
-        X = [f_dict[f] for f in features]
-        X = np.concatenate(tuple(X), axis=1)
+        X = data.get_joint_matrix(features, wc_params, tfidf_params)
 
         train_x = X[data.train_indices]
         train_y = data.labels[data.train_indices]
@@ -84,6 +80,13 @@ class Algorithm:
                 test_acc, prfs)
         self.results.loc[len(self.results)] = row
         self.save()
+
+    def search(self, data, param_dist, features, wc_params, tfidf_params):
+        X = data.get_joint_matrix(features, wc_params, tfidf_params)
+        y = data.labels
+        r_search = RandomizedSearchCV(self.model(), param_dist, n_iter=20)
+        r_search.fit(X, y)
+        self.r = r_search
 
     def to_csv(self):
         self.results.to_csv(os.path.join('algorithms/results', self.name + '.csv'), index=False)

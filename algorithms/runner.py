@@ -1,4 +1,5 @@
 import pandas as pd
+import scipy.stats
 import numpy as np
 import util
 import itertools
@@ -41,8 +42,10 @@ def get_results(alg: Algorithm, data, feature_lists, options_c, options_wc, opti
 wc_opts = [{}, {'min_df':5}, {'max_df':0.8}, {'min_df':5, 'max_df':0.8}, {'min_df':5, 'max_df':0.8, 'binary':True}]
 tfidf_opts = [{}, {'min_df':5}, {'max_df':0.8}, {'min_df':5, 'max_df':0.8}]
 lr_opts = [{'penalty':'l1', 'C':1}, {'penalty':'l1', 'C':0.8}, {'penalty':'l1', 'C':0.6}, {'penalty':'l2', 'C':1}, {'penalty':'l2', 'C':0.8}, {'penalty':'l2', 'C':0.6}]
+lr_opts = [{'penalty':'l1', 'C':1}, {'penalty':'l1', 'C':0.8}, {'penalty':'l1', 'C':0.6}, {'penalty':'l2', 'C':1}, {'penalty':'l2', 'C':0.8}, {'penalty':'l2', 'C':0.6}]
+svm_opts = [ {'kernel':'rbf', 'C':1}, {'kernel':'rbf', 'C':0.8}, {'kernel':'rbf', 'C':0.6}, {'kernel':'linear', 'C':1}, {'kernel':'linear', 'C':0.8}, {'kernel':'linear', 'C':0.6} ]
 
-features = [[x] for x in util.features] + [['word count', 'nl'], ['tfidf', 'nl'], ['word count', 'tfidf'], ['word count', 'tfidf', 'nl']]
+features = [[x] for x in util.features] + [['word count', 'nl'], ['tfidf', 'nl']]#, ['word count', 'tfidf'], ['word count', 'tfidf', 'nl']]
 
 
 #names = ["Nearest_Neighbors", "SVM", "Gaussian_Process",
@@ -51,6 +54,7 @@ features = [[x] for x in util.features] + [['word count', 'nl'], ['tfidf', 'nl']
 if __name__ == "__main__":
     a = algs.load_alg('Logistic_Regression')
     data = util.load_pkl(wb_path)
-    get_results(a, data, features, lr_opts, wc_opts, tfidf_opts)
-    #get_results(a, data, [['nl']], [{}], [{}], [{}]) Dummy: features ..etc don't matter
-    a.to_csv()
+    param_dist = {'penalty':['l1', 'l2'], 'C':[10**i for i in range(-5, 5)]}
+    a.search(data, param_dist, ['word count', 'nl'], {'min_df':5, 'max_df':0.8}, {})
+    a.save()
+    print(a.r.cv_results_)

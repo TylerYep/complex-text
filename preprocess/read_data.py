@@ -33,6 +33,14 @@ class DataFeatures:
     def get_f_dict(self):
         return dict(zip(util.features, [self.count_matrix, self.tfidf_matrix, self.nl_matrix]))
 
+    def get_joint_matrix(self, features, wc_params, tfidf_params):
+        if 'word count' in features: self.get_wc(wc_params)
+        if 'tfidf' in features: self.get_tfidf(tfidf_params)
+        f_dict = self.get_f_dict()
+        X = [f_dict[f] for f in features]
+        X = np.concatenate(tuple(X), axis=1)
+        return X
+
     def get_indices(self):
         self.train_indices = self.raw[self.raw.split == 0].index
         self.val_indices = self.raw[self.raw.split == 1].index

@@ -1,3 +1,4 @@
+import util
 import pickle
 import numpy as np
 import sklearn
@@ -7,8 +8,11 @@ import spacy
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from collections import Counter, defaultdict
-import os, sys
-import util
+
+import os
+import sys
+sys.path.append('../')
+
 
 class DataFeatures:
     def __init__(self, dataset):
@@ -17,8 +21,8 @@ class DataFeatures:
 
         self.count_matrix, self.tfidf_matrix = None, None
 
-        #self.get_tfidf()   # These two are fast and should just be called everytime
-        #self.get_wc()      # with different options.
+        # self.get_tfidf()   # These two are fast and should just be called everytime
+        # self.get_wc()      # with different options.
         self.nl_matrix = self.get_nlfeatures()
 
         self.fname = 'preprocess/' + dataset + '_features.pkl'
@@ -71,17 +75,17 @@ class DataFeatures:
         Dictionary of feature name to value.
         '''
         # Function to check if the token is a noise or not
-        def isNoise(token, noisy_pos_tags = ['PROP'], min_token_length = 2):
+        def isNoise(token, noisy_pos_tags=['PROP'], min_token_length=2):
             return token.pos_ in noisy_pos_tags or token.is_stop or len(token.string) <= min_token_length
 
-        def cleanup(token, lower = True):
+        def cleanup(token, lower=True):
             if lower:
-               return token.lower().strip()
+                return token.lower().strip()
             return token.strip()
 
         print('Getting NLP Features...')
         nlp = spacy.load('en')
-        #documents = self.raw['text'].apply(nlp) # I removed this easier to debug
+        #documents = self.raw['text'].apply(nlp)
 
         num_docs = 0
         feature_matrix = []
@@ -91,62 +95,78 @@ class DataFeatures:
             num_docs += 1
             if num_docs == 10:
                 break
-
+            POS_TAGS = [
+                "", "ADJ", "ADP", "ADV", "AUX", "CONJ",
+                "CCONJ", "DET", "INTJ", "NOUN", "NUM", "PART",
+                "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB",
+                "X", "EOL", "SPACE"
+            ]
             noun_chunks = list(doc.noun_chunks)
             sentences = list(doc.sents)
-            avg_sent_length = sum([len(sent) for sent in sentences]) / len(sentences)
+            avg_sent_length = sum([len(sent)
+                                   for sent in sentences]) / len(sentences)
             all_tag_counts = defaultdict(int)
             for w in doc:
                 all_tag_counts[w.pos_] += 1
             # cleaned_list = [cleanup(word.string) for word in doc if not isNoise(word)]
             # Counter(cleaned_list).most_common(5)
-            
-            #TODO do the zero thing, make columns consistent
+
+            # TODO do the zero thing, make columns consistent
 
             feats = []
-            for tag, count in all_tag_counts.items():
-                feats.append(count)
+            for tag in POS_TAGS:
+                feats.append(all_tag_counts[tag])
             feats.append(len(noun_chunks))          # num_noun_chunks
             feats.append(len(sentences))            # num_sentences
             feats.append(avg_sent_length)
-            feature_matrix.append(feats) # Keep it as a list of lists (calling np.array on list of lists creates multidimensional array instead of a 1-d array of np arrays)
-
+            feature_matrix.append(feats)
             print(len(feats))
 
         print(np.array(feature_matrix))
 
         return np.array(feature_matrix)
 
+
 def prep_weebit():
     data = []
     weebit_dir = 'data/weebit/WeeBit-TextOnly/'
     difficulty_levels = ['WRLevel2', 'WRLevel3', 'WRLevel4']
 
-    for difficulty in  difficulty_levels:
+    for difficulty in difficulty_levels:
         path = weebit_dir + difficulty
         texts = os.listdir(path)
         for t in texts:
-            with open(os.path.join(path, t),  'r', encoding = "ISO-8859-1") as myfile:
+            with open(os.path.join(path, t),  'r', encoding="ISO-8859-1") as myfile:
                 this_text = myfile.read().replace('\n', ' ')
-                this_text = this_text.replace('All trademarks and logos are property of Weekly Reader Corporation.', '')
+                this_text = this_text.replace(
+                    'All trademarks and logos are property of Weekly Reader Corporation.', '')
                 this_text = ftfy.fix_text(this_text)
                 data.append((this_text, int(difficulty[-1]), t))
 
     df = pd.DataFrame(data)
     df.columns = ['text', 'level', 'fname']
+<<<<<<< Updated upstream
     df['split'] = np.random.choice(3, len(df), p=[0.8, 0.1,0.1])
     df.to_csv('data/weebit/weebit.csv', index=False)
+=======
+    df['split'] = np.random.choice(3, len(df), p=[0.8, 0.1, 0.1])
+    df.to_csv('../data/weebit/weebit.csv', index=False)
+>>>>>>> Stashed changes
     return df
+
 
 def load_weebit():
     return pd.read_csv('data/weebit/weebit.csv')
+
 
 def load_one_stop():
     # TODO
     return pd.read_csv('')
 
+
 def prep_onestop():
     pass
+
 
 if __name__ == "__main__":
     pass

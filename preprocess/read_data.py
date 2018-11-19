@@ -114,7 +114,6 @@ class DataFeatures:
             feats.append(avg_sent_length)
             feature_matrix.append(feats)
 
-        print(np.array(feature_matrix))
         return np.array(feature_matrix)
 
 
@@ -159,5 +158,5 @@ if __name__ == "__main__":
     pass
     # prep_weebit()
     #x = DataFeatures('weebit')
-    x = util.load_pkl('preprocess/weebit_features.pkl')
-    x.__init__('weebit')
+    #x = util.load_pkl('preprocess/weebit_features.pkl')
+    #x.__init__('weebit')

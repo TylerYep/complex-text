@@ -26,31 +26,34 @@ This project's outcomes have the potential of enhancing education immensely. Com
 
 \section{Data: Feature Extraction and Selection}
 We are working with the Weebit Dataset (TODO something about the dataset here)
-\subsection{Data Preprocessing}
+\subsection{Data preprocessing}
 To preprocess the data, we removed new line characters, set all words to be lower case and removed any trademark disclaimers. We also split the dataset into training, validation and test sets.
 
-\subsection{Word Count} TODO
-\subsection{Tf-Idf} TODO
-\subsection{Natural Language Features} TODO
-\section{Basic Analytics on Natural Language Features}
+\subsection{Word count} TODO %Harry
+\subsection{Tf-Idf} TODO %Harry
+\subsection{Natural language features} TODO
+\subsection{Basic analytics on natural language features} %Harry
 
 
 \section{Model Selection}
 TODO Have some figure/table here
 
-\subsection{Baseline}
-\subsection{Logistic Regression}
+\subsection{Baseline}%Harry
+\subsection{Logistic Regression} %Harry
 TODO have some figure comparing $C$ parameter to the validation accuracy.
 
-\subsection{SVM}
+\subsection{SVM}%Harry
 \subsection{AdaBoost}\dots
 \subsection{Other}
 
 \section{Next Steps}
+%HARRY
+
 \begin{enumerate}
-    \item Random Parameter Search
-    \item LSTM (sequence model)
-    \item Generative Algorithm
+    \item \textbf{Hyperparameter Tuning and Cross Validation.}To further tune the hyperparameters of our models, we plan to employ random search with k-folds validation. In particular, random search has a greater change of exploring the whole parameter space due to the randomness (TODO cite https://www.analyticsindiamag.com/why-is-random-search-better-than-grid-search-for-machine-learning/). Further the use of k-folds validation allows us to incorporate the validation set in training. Furthermore, as the score in k-folds validation is computed as an average over the performance on each fold, we are less likely to overfit to any validation set. Hopefully, using these methods, we can further improve the performance our models.
+    \item \textbf{LSTM (sequence model).} One key drawback in our representation of the documents is that most of the sequential information is lost in the encoding. However, it is very likely that the sequential relationships play a key role in determining the complexity of a text. The reason why sequential encodings were not used originally. 
+
+    \item \textbf{Generative Algorithm}
 \end{enumerate}
 
 

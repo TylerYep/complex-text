@@ -1,4 +1,3 @@
-import util
 import pickle
 import numpy as np
 import sklearn
@@ -12,6 +11,7 @@ from collections import Counter, defaultdict
 import os
 import sys
 sys.path.append('../')
+import util
 
 
 class DataFeatures:
@@ -145,13 +145,8 @@ def prep_weebit():
 
     df = pd.DataFrame(data)
     df.columns = ['text', 'level', 'fname']
-<<<<<<< Updated upstream
     df['split'] = np.random.choice(3, len(df), p=[0.8, 0.1,0.1])
     df.to_csv('data/weebit/weebit.csv', index=False)
-=======
-    df['split'] = np.random.choice(3, len(df), p=[0.8, 0.1, 0.1])
-    df.to_csv('../data/weebit/weebit.csv', index=False)
->>>>>>> Stashed changes
     return df
 
 

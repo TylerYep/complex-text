@@ -8,11 +8,10 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from collections import Counter, defaultdict
 
-import os
-import sys
-sys.path.append('../')
+import os, sys
+sys.path.append('preprocess')
+sys.path.append('algorithms')
 import util
-
 
 class DataFeatures:
     def __init__(self, dataset):
@@ -85,16 +84,14 @@ class DataFeatures:
 
         print('Getting NLP Features...')
         nlp = spacy.load('en')
-        #documents = self.raw['text'].apply(nlp)
+        # documents = self.raw['text'].apply(nlp)
 
         num_docs = 0
         feature_matrix = []
         for text in self.raw.text:
+            if num_docs % 100 == 0: print(num_docs)
             doc = nlp(text)
-
             num_docs += 1
-            if num_docs == 10:
-                break
             POS_TAGS = [
                 "", "ADJ", "ADP", "ADV", "AUX", "CONJ",
                 "CCONJ", "DET", "INTJ", "NOUN", "NUM", "PART",
@@ -103,16 +100,12 @@ class DataFeatures:
             ]
             noun_chunks = list(doc.noun_chunks)
             sentences = list(doc.sents)
-            avg_sent_length = sum([len(sent)
-                                   for sent in sentences]) / len(sentences)
+            avg_sent_length = sum([len(sent) for sent in sentences]) / len(sentences)
             all_tag_counts = defaultdict(int)
             for w in doc:
                 all_tag_counts[w.pos_] += 1
             # cleaned_list = [cleanup(word.string) for word in doc if not isNoise(word)]
             # Counter(cleaned_list).most_common(5)
-
-            # TODO do the zero thing, make columns consistent
-
             feats = []
             for tag in POS_TAGS:
                 feats.append(all_tag_counts[tag])
@@ -120,10 +113,8 @@ class DataFeatures:
             feats.append(len(sentences))            # num_sentences
             feats.append(avg_sent_length)
             feature_matrix.append(feats)
-            print(len(feats))
 
         print(np.array(feature_matrix))
-
         return np.array(feature_matrix)
 
 
@@ -164,6 +155,7 @@ def prep_onestop():
 
 
 if __name__ == "__main__":
+    print(os.getcwd())
     pass
     # prep_weebit()
     #x = DataFeatures('weebit')

@@ -36,7 +36,7 @@ This creates a vocabulary $V$ of words in the training set. Then the word count 
 We experimented with changing $min_df$, and $max_df$, which represents the minimum or maximum document frequencies of a word in order to be included in the vocabulary. Adjusting these parameters controls the dimension of $\phi_{word count}(x)$ in a logical way. Furthermore, we experimented with another parameter, $binary =True$, which sets
 $$\phi_{word count}(x)_i = \begin{cases}
     1 & \text{count of word $i$ in x $\geq 1$}\\
-    0 & \text{otherwize}
+    0 & \text{otherwise}
 \end{cases}$$
 
 Empirically, we found that performance of models were not very sensitive to the $min_df$ and $max_df$ parameters. However, the $binary$ option either substantially increased or decreased accuracy. Thus we set $min_{df}$, $max_{df} = 5, 80\%$, and try both binary and not-binary. 

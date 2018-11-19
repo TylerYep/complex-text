@@ -26,6 +26,9 @@ class Algorithm:
         self.model = model
         self.results = pd.DataFrame(columns=util.results_headers)
 
+    def remove_dup(self):
+        self.results.drop_duplicates(subset=['model_type', 'features', 'clf_options', 'wc_params', 'tfidf_params'], inplace=True)
+
     def get_fname(self):
         # Returns the file path to save
         fname = self.name

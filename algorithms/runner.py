@@ -44,32 +44,33 @@ def get_results(alg: Algorithm, data, feature_lists, options_c, options_wc, opti
 
 def bit_twiddle_params(a, data, features):
     best_options = {}
-    best_train, best_test = 0, 0
-    # activations = {'identity', 'logistic', 'tanh', 'relu'}
-    # for act in activations:
-    for n in range(40, 70, 10):
-        for eta in range(10, 20):
-            options = {'n_estimators' : n, 'learning_rate': eta * 0.05}
-            a.run(data, features, clf_options=options)
-            a.to_csv()
-            acc_train = a.results.loc[len(a.results) - 1].train_acc
-            acc_test = a.results.loc[len(a.results) - 1].test_acc
-            if acc_train > best_train and acc_test > best_test:
-                best_train, best_test = acc_train, acc_test
-                best_options = options
+    best_train, best_test = 0.0, 0.0
+    for solv in {'lbfgs','adam'}:
+        for act in {'identity', 'logistic', 'tanh', 'relu'}:
+            for eta in {0.00001, 0.0001, 0.001, 0.01, 0.1, 1}:
+                options = {'solver' : solv, 'activation': act, 'learning_rate': 'constant', 'learning_rate_init': eta,
+                'n_iter_no_change': 100, 'max_iter': 300}
+                a.run(data, features, clf_options=options)
+                a.to_csv()
+                acc_train = a.results.loc[len(a.results) - 1].train_acc
+                acc_test = a.results.loc[len(a.results) - 1].test_acc
+                if acc_train > best_train and acc_test > best_test:
+                    best_train, best_test = acc_train, acc_test
+                    best_options = options
     print(best_options, best_train, best_test)
+
 
 if __name__ == "__main__":
     a = algs.load_alg('Neural_Net')
     data = util.load_pkl(wb_path)
     bit_twiddle_params(a, data, ['nl'])
 
-if __name__ == "__main__":
-    a = algs.load_alg('Naive_Bayes')
-    features = util.features
-    data = util.load_pkl(wb_path)
-    get_results(a, data, features, nb_opts, wc_opts, tfidf_opts)
-    a.run(data, ['tfidf'],wc_params={'min_df':5}, tfidf_params={'min_df':5} )
+    #
+    # a = algs.load_alg('Naive_Bayes')
+    # features = util.features
+    # data = util.load_pkl(wb_path)
+    # get_results(a, data, features, nb_opts, wc_opts, tfidf_opts)
+    # a.run(data, ['tfidf'],wc_params={'min_df':5}, tfidf_params={'min_df':5} )
     #a.run(data, ['word count'], wc_params={'min_df':4})
     #a.run(data, ['tfidf'], tfidf_params={'min_df':5})
     a.to_csv()

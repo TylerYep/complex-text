@@ -21,7 +21,7 @@ class DataFeatures:
         self.count_matrix, self.tfidf_matrix = None, None
 
         # self.get_tfidf()   # These two are fast and should just be called everytime
-        # self.get_wc()      # with different options.
+        self.get_wc()      # with different options.
         self.nl_matrix = self.get_nlfeatures()
 
         self.fname = 'preprocess/' + dataset + '_features.pkl'
@@ -154,9 +154,7 @@ def prep_onestop():
 
 
 if __name__ == "__main__":
-    print(os.getcwd())
-    pass
     # prep_weebit()
-    #x = DataFeatures('weebit')
+    x = DataFeatures('weebit')
     #x = util.load_pkl('preprocess/weebit_features.pkl')
-    #x.__init__('weebit')
+    x.__init__('weebit')

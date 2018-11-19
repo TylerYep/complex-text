@@ -6,5 +6,5 @@ import os, sys
 sys.path.append('../')
 import util
 
-x = util.load_pkl('weebit_features.pkl')
-print(x.nl_matrix)
+x = util.load_pkl('preprocess/weebit_features.pkl')
+print(x)

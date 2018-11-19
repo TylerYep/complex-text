@@ -45,19 +45,20 @@ def get_results(alg: Algorithm, data, feature_lists, options_c, options_wc, opti
 def bit_twiddle_params(a, data, features):
     best_options = {}
     best_train, best_test = 0.0, 0.0
-    for solv in {'lbfgs','adam'}:
-        for act in {'identity', 'logistic', 'tanh', 'relu'}:
-            for eta in {0.00001, 0.0001, 0.001, 0.01, 0.1, 1}:
-                options = {'solver' : solv, 'activation': act, 'learning_rate': 'constant', 'learning_rate_init': eta,
-                'n_iter_no_change': 100, 'max_iter': 300}
-                a.run(data, features, clf_options=options)
-                a.to_csv()
-                acc_train = a.results.loc[len(a.results) - 1].train_acc
-                acc_test = a.results.loc[len(a.results) - 1].test_acc
-                if acc_train > best_train and acc_test > best_test:
-                    best_train, best_test = acc_train, acc_test
-                    best_options = options
-    print(best_options, best_train, best_test)
+    # for eta in {0.00001, 0.0001, 0.001, 0.01, 0.1, 1}:
+    # options = {'solver' : 'adam', 'activation': 'logistic', 'learning_rate': 'constant', 'learning_rate_init': 0.01
+    #     }#,'n_iter_no_change': 100, 'max_iter': 300}
+    # for eta in {0.00001, 0.0001, 0.001, 0.01, 0.1, 1}:
+    for eta in {0.2, 0.8}:
+        options = {'n_estimators': 150, 'learning_rate': eta}
+        a.run(data, features, clf_options=options)
+        a.to_csv()
+        acc_train = a.results.loc[len(a.results) - 1].train_acc
+        acc_test = a.results.loc[len(a.results) - 1].test_acc
+        if acc_train > best_train and acc_test > best_test:
+            best_train, best_test = acc_train, acc_test
+            best_options = options
+        print(best_options, best_train, best_test)
 
 wc_opts = [{}, {'min_df':5}, {'max_df':0.8}, {'min_df':5, 'max_df':0.8}, {'min_df':5, 'max_df':0.8, 'binary':True}]
 tfidf_opts = [{}, {'min_df':5}, {'max_df':0.8}, {'min_df':5, 'max_df':0.8}]
@@ -70,12 +71,12 @@ features = [[x] for x in util.features] + [['word count', 'nl'], ['tfidf', 'nl']
 #         "Decision_Tree", "Random_Forest", "Neural_Net", "AdaBoost",
 #         "Naive_Bayes", "Logistic_Regression", 'Dummy']
 if __name__ == "__main__":
-    a = algs.load_alg('Neural_Net')
+    a = algs.load_alg('AdaBoost')
     data = util.load_pkl(wb_path)
-    # bit_twiddle_params(a, data, ['nl'])
+    bit_twiddle_params(a, data, ['word count', 'nl'])
 
-    nn_opts = [{'solver': 'lbfgs', 'activation': 'relu', 'learning_rate': 'adaptive',
-    'learning_rate_init': 0.01, 'n_iter_no_change': 100, 'max_iter': 300}]
+    # nn_opts = [{'solver': 'lbfgs', 'activation': 'relu', 'learning_rate': 'adaptive',
+    # 'learning_rate_init': 0.01, 'n_iter_no_change': 100, 'max_iter': 300}]
     # a = algs.load_alg('Naive_Bayes')
     # features = util.features
     # data = util.load_pkl(wb_path)
@@ -85,6 +86,6 @@ if __name__ == "__main__":
     #a.run(data, ['tfidf'], tfidf_params={'min_df':5})
     # a = algs.load_alg('Logistic_Regression')
     # data = util.load_pkl(wb_path)
-    get_results(a, data, [['word count', 'nl']], nn_opts, wc_opts, {})
+    # get_results(a, data, [['word count', 'nl']], nn_opts, wc_opts, {})
     # #get_results(a, data, [['nl']], [{}], [{}], [{}]) Dummy: features ..etc don't matter
-    a.to_csv()
+    # a.to_csv()

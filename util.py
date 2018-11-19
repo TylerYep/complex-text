@@ -14,7 +14,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.dummy import DummyClassifier
 
-features = ['word count', 'tfidf', 'nl']
+features = ['word_count', 'tfidf', 'nl']
 
 results_headers = ['model_type', 'features', 'clf_options', 'wc_params',
         'tfidf_params', 'train_acc', 'test_acc', 'prfs']

@@ -86,6 +86,7 @@ class Algorithm:
         self.save()
 
     def to_csv(self):
+        self.remove_dup()
         self.results.to_csv(os.path.join('algorithms/results', self.name + '.csv'), index=False)
 
 def combine_csv():
@@ -98,7 +99,3 @@ def combine_csv():
 if __name__ == "__main__":
     # Test with runner
     pass
-
-
-
-

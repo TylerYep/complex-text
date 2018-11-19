@@ -41,7 +41,7 @@ def get_results(alg: Algorithm, data, feature_lists, options_c, options_wc, opti
 
 wc_opts = [{}, {'min_df':5}, {'max_df':0.8}, {'min_df':5, 'max_df':0.8}, {'min_df':5, 'max_df':0.8, 'binary':True}]
 tfidf_opts = [{}, {'min_df':5}, {'max_df':0.8}, {'min_df':5, 'max_df':0.8}]
-lr_opts = [{'penalty':'l2', 'C':10**i} for i in range(-3, 3)]#[{'penalty':'l1', 'C':10}, {'penalty':'l1', 'C':100}, {'penalty':'l1', 'C':0.001}]#, {'penalty':'l2', 'C':1}, {'penalty':'l2', 'C':0.8}, {'penalty':'l2', 'C':0.6}]
+lr_opts = [{'penalty':'l2', 'C':10**i} for i in range(-3, 3)] + [{'penalty':'l1', 'C':10**i} for i in range(-3, 3)]
 svm_opts = [ {'kernel':'rbf', 'C':1}, {'kernel':'rbf', 'C':0.8}, {'kernel':'rbf', 'C':0.6}, {'kernel':'linear', 'C':1}, {'kernel':'linear', 'C':0.8}, {'kernel':'linear', 'C':0.6} ]
 
 features = [[x] for x in util.features] + [['word count', 'nl'], ['tfidf', 'nl']]#, ['word count', 'tfidf'], ['word count', 'tfidf', 'nl']]
@@ -53,7 +53,7 @@ features = [[x] for x in util.features] + [['word count', 'nl'], ['tfidf', 'nl']
 if __name__ == "__main__":
     a = algs.load_alg('Logistic_Regression')
     data = util.load_pkl(wb_path)
-    param_dist = {'penalty':['l1', 'l2'], 'C':[10**i for i in range(-5, 5)]}
+    #param_dist = {'penalty':['l1', 'l2'], 'C':[10**i for i in range(-5, 5)]}
     #a.search(data, param_dist, ['word count', 'nl'], {'min_df':5, 'max_df':0.8}, {})
-    get_results(a, data,  [['word count', 'nl']],lr_opts, [{'min_df':5, 'max_df':0.8}], [{}])
+    get_results(a, data,  [['word count','nl']],lr_opts, [{'min_df':5, 'max_df':0.8, 'binary':True}], [{}])
     a.to_csv()

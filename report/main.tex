@@ -6,7 +6,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath}
 \usepackage{cite}
-\linespread{1.4}
+\linespread{1.2}
 \usepackage{hyperref}
 
 \begin{document}
@@ -26,13 +26,29 @@ This project's outcomes have the potential of enhancing education immensely. Com
 
 \section{Data: Feature Extraction and Selection}
 We are working with the Weebit Dataset (TODO something about the dataset here)
-\subsection{Data preprocessing}
-To preprocess the data, we removed new line characters, set all words to be lower case and removed any trademark disclaimers. We also split the dataset into training, validation and test sets.
+\paragraph{Data preprocessing}
+To preprocess the data, we removed new line characters, set all words to be lower case and removed any trademark disclaimers. We also split the dataset into training, validation and test sets. For the following section let $x$ represent one example of a preprocessed text. 
 
-\subsection{Word count} TODO %Harry
-\subsection{Tf-Idf} TODO %Harry
-\subsection{Natural language features} TODO
+\paragraph{Word count}
+This creates a vocabulary $V$ of words in the training set. Then the word count feature extractor computes
+\[\phi_{word count}(x)_i = \text{count of word $i$ in x} \]
+We experimented with changing $min_df$, and $max_df$, which represents the minimum or maximum document frequencies of a word in order to be included in the vocabulary. Adjusting these parameters controls the dimension of $\phi_{word count}(x)$ in a logical way. Furthermore, we experimented with another parameter, $binary =True$, which sets
+$$\phi_{word count}(x)_i = \begin{cases}
+    1 & \text{count of word $i$ in x $\geq 1$}\\
+    0 & \text{otherwize}
+\end{cases}$$
+
+Empirically, we found that performance of models were not very sensitive to the $min_df$ and $max_df$ parameters. However, the $binary$ option either substantially increased or decreased accuracy. Thus we set $min_{df}$, $max_{df} = 5, 80\%$, and try both binary and not-binary. 
+
+\paragraph{Tf-Idf} 
+Tf-Idf extracts the word count weighted by a measure of inverse document frequency (Idf). This diminishes the importance of common words such as 'a', and 'the', and highlights the importance of uncommon words. We found that the Tf-Idf features gave worse performance the the word count feature extractor. One possible reason for this is that Tf-Idf creates feature vectors which are more similar in their topic/meaning than in structure, where for our task, the topic/meaning of the text may not be so important.
+
+\paragraph{Natural language features} TODO
+
+Finally, we can combine the features above by performing concatenation. Empirically, in logistic regression models, we found that the optimal features were a concatenation of word count with the parameters described above, and the natural language features.
+
 \subsection{Basic analytics on natural language features} %Harry
+
 
 
 \section{Model Selection}
@@ -51,9 +67,12 @@ TODO have some figure comparing $C$ parameter to the validation accuracy.
 
 \begin{enumerate}
     \item \textbf{Hyperparameter Tuning and Cross Validation.}To further tune the hyperparameters of our models, we plan to employ random search with k-folds validation. In particular, random search has a greater change of exploring the whole parameter space due to the randomness (TODO cite https://www.analyticsindiamag.com/why-is-random-search-better-than-grid-search-for-machine-learning/). Further the use of k-folds validation allows us to incorporate the validation set in training. Furthermore, as the score in k-folds validation is computed as an average over the performance on each fold, we are less likely to overfit to any validation set. Hopefully, using these methods, we can further improve the performance our models.
-    \item \textbf{LSTM (sequence model).} One key drawback in our representation of the documents is that most of the sequential information is lost in the encoding. However, it is very likely that the sequential relationships play a key role in determining the complexity of a text. The reason why sequential encodings were not used originally. 
+    \item \textbf{LSTM (sequence model).} One key drawback in our representation of the documents is that most of the sequential information is lost in the encoding. However, it is very likely that the sequential relationships play a key role in determining the complexity of a text. The reason why sequential encodings were not used originally was that models such as Logistic Regression, SVMs, expect fixed length inputs. Sequential encodings could not satisfy this requirement without padding due to the fact that different documents have different lengths. Furthermore padding did not seem like a viable option due the variance in document length. 
+
+        To address this problem, we will use a Recurrent Neural Network. The architecture of this neural network allows for arbitrary length inputs and, can learn time dependencies. They have been successfully applied in NLP in the past. One proposed input for this model is to encode each document as a sequence of part of speech tags instead of word embeddings. Our hypothesis is that this will both allow the model to fit the data better, and also generalize to unseen texts. The intuition behind this is that there can be complex and simple text of any topic, thus a more important factor in determining complexity is grammatical structure of the sentence.
 
     \item \textbf{Generative Algorithm}
+        Finally we will create a generative algorithm to generate texts of different levels of complexity. Our proposed method is to create $3$ LSTM models, one for each complexity level. We will use the sequence of part of speech encoding as described in the previous section, but in this setting we will be learning the probability of the part of speech of the next word given the previous words. Formally we will be predicting $p(pos^{t+1}| pos^{t}, pos^{t-1}\dots pos^{1})$. Then to generate a document, we will continually sample from the model using the previously generated samples as the input, until we reach a special terminating character. Finally we will substitute the part of speech tags with actual words from a specified dictionary. 
 \end{enumerate}
 
 

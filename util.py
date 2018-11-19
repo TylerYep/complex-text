@@ -14,6 +14,22 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.dummy import DummyClassifier
 
+class ASC:
+    def __init__(self):
+        pass
+
+    def fit(self, X, y):
+        avgs = []
+        X = X[:, -1].flatten()
+        for i in [2, 3, 4]:
+            avgs.append(np.mean(X[y == i]))
+        self.avgs = avgs
+
+    def predict(self, X):
+        X = X[:, -1].flatten()
+        diffs = np.array([[np.abs(x-a) for a in self.avgs] for x in X])
+        return np.argmin(diffs, axis=1) + 2
+
 features = ['word count', 'tfidf', 'nl']
 
 results_headers = ['model_type', 'features', 'clf_options', 'wc_params',
@@ -21,11 +37,11 @@ results_headers = ['model_type', 'features', 'clf_options', 'wc_params',
 
 names = ["Nearest_Neighbors", "SVM", "Gaussian_Process",
          "Decision_Tree", "Random_Forest", "Neural_Net", "AdaBoost",
-         "Naive_Bayes", "Logistic_Regression", 'Dummy']
+         "Naive_Bayes", "Logistic_Regression", 'Dummy', 'ASC']
 
 models = [KNeighborsClassifier, SVC, GaussianProcessClassifier, DecisionTreeClassifier,
     RandomForestClassifier, MLPClassifier, AdaBoostClassifier, GaussianNB,
-    LogisticRegression, DummyClassifier]
+    LogisticRegression, DummyClassifier, ASC]
 
 model_dict = dict(zip(names, models))
 
@@ -40,3 +56,5 @@ def save_pkl(fname, obj):
 def load_pkl(fname):
     with open(fname, 'rb') as f:
         return pickle.load(f)
+
+

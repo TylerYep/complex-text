@@ -28,7 +28,7 @@ This project's outcomes have the potential of enhancing education immensely. Com
 We are working with the Weebit Dataset (TODO something about the dataset here)
 
 \paragraph{Data preprocessing}
-To preprocess the data, we removed new line characters, set all words to be lower case and removed any trademark disclaimers. We also split the dataset into training, validation and test sets. For the following section let $x$ represent one example of a preprocessed text. 
+To preprocess the data, we removed new line characters, set all words to be lower case and removed any trademark disclaimers. We also split the dataset into training, validation and test sets. For the following section let $x$ represent one example of a preprocessed text. Word count and Tf-Idf feature extraction was completed using sci-kit learn (TODO cite)
 
 \paragraph{Word count}
 This creates a vocabulary $V$ of words in the training set. Then the word count feature extractor computes
@@ -45,7 +45,7 @@ Empirically, we found that performance of models were not very sensitive to the 
 Tf-Idf extracts the word count weighted by a measure of inverse document frequency (Idf). This diminishes the importance of common words such as 'a', and 'the', and highlights the importance of uncommon words. We found that the Tf-Idf features gave worse performance the the word count feature extractor. One possible reason for this is that Tf-Idf creates feature vectors which are more similar in their topic/meaning than in structure, where for our task, the topic/meaning of the text may not be so important.
 
 \paragraph{Natural language features}
-We also appended counts of the parts of speech in each of our documents. Using spaCy, we parsed each of the words in our documents and categorized them
+We also appended counts of the parts of speech in each of our documents. Using spaCy TODO cite, we parsed each of the words in our documents and categorized them
 We also added the average sentence length and basic features such as the number of sentences and number of words. (Add something about normalizing for longer texts)
 
 Finally, we can combine the features above by performing concatenation. Empirically, in logistic regression models, we found that the optimal features were a concatenation of word count with the parameters described above, and the natural language features.
@@ -54,17 +54,17 @@ Finally, we can combine the features above by performing concatenation. Empirica
 
 
 
+
 \section{Model Selection}
 TODO Have some figure/table here
 
-\subsection{Baseline}%Harry
-
-\subsection{Logistic Regression} %Harry
+\paragraph{Baseline}%Harry
+\paragraph{Logistic Regression} %Harry
 TODO have some figure comparing $C$ parameter to the validation accuracy.
 
-\subsection{SVM}%Harry
-\subsection{AdaBoost}\dots
-\subsection{Other}
+\paragraph{SVM}%Harry
+\paragraph{AdaBoost}\dots
+\paragraph{Other}
 
 \section{Next Steps}
 \begin{enumerate}

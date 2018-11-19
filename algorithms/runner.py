@@ -32,6 +32,7 @@ AdaBoost
 
 wb_path = 'preprocess/weebit_features.pkl'
 
+
 def get_results(alg: Algorithm, data, feature_lists, options_c, options_wc, options_tfidf):
     prod = itertools.product(feature_lists, options_c, options_wc, options_tfidf)
     for f, c, wc, t in tqdm(list(prod)):
@@ -51,9 +52,10 @@ features = [[x] for x in util.features] + [['word count', 'nl'], ['tfidf', 'nl']
 #         "Decision_Tree", "Random_Forest", "Neural_Net", "AdaBoost",
 #         "Naive_Bayes", "Logistic_Regression", 'Dummy']
 if __name__ == "__main__":
-    a = algs.load_alg('Logistic_Regression')
+    a = algs.load_alg('ASC')
     data = util.load_pkl(wb_path)
     #param_dist = {'penalty':['l1', 'l2'], 'C':[10**i for i in range(-5, 5)]}
     #a.search(data, param_dist, ['word count', 'nl'], {'min_df':5, 'max_df':0.8}, {})
-    get_results(a, data,  [['word count','nl']],lr_opts, [{'min_df':5, 'max_df':0.8, 'binary':True}], [{}])
+    a.run(data, ['nl'])
+    #get_results(a, data,  [['word count','nl']],lr_opts, [{'min_df':5, 'max_df':0.8, 'strip_accents':'ascii'}], [{}])
     a.to_csv()

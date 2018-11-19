@@ -24,25 +24,35 @@ The goal of our project is to explore the idea of text complexity in the context
 
 This project's outcomes have the potential of enhancing education immensely. Complexity-classified documents allow students to find papers or conceptual explanations at understandable difficulty level. Generating or transforming text into simpler levels of complexity encourages more widespread knowledge, approachable from different fields and backgrounds. Students gain the power to understand big picture ideas and ramp up the difficulty level as they see fit, ultimately resulting in a more personalized educational experience.
 
-\section{Plan}
-\subsection{Feature Selection}
-First, we will compare the differences between texts of different labels to see if there are certain features that are indicative of certain labels, such as the lengths of sentences or number of unique words. We will use the results of this analysis to guide our feature selection and text representation. 
+\section{Data: Feature Extraction and Selection}
+We are working with the Weebit Dataset (TODO something about the dataset here)
+\subsection{Data Preprocessing}
+To preprocess the data, we removed new line characters, set all words to be lower case and removed any trademark disclaimers. We also split the dataset into training, validation and test sets.
 
-The text encoding schemes we will experiment with are \textit{bag of words}, \textit{word counts}, and \textit{Tf-Idf}. We will test the features using a simple softmax regression, and then combine them to measure their effectiveness.
+\subsection{Word Count} TODO
+\subsection{Tf-Idf} TODO
+\subsection{Natural Language Features} TODO
+\section{Basic Analytics on Natural Language Features}
 
-\subsection{Classification of Complexity}
-We will then experiment with many types of classification algorithms such as SVMs, linear models, k-nearest neighbours, decision trees, and deep learning models such as LSTMs. The different approaches can then be compared/evaluated and potentially used in ensemble, and then will be evaluated using cross-validation. 
 
-Complexity in past papers have been defined in different ways, from Lexile scores to age ranges, which we can experiment with. Ultimately, the complexity measurement we choose will stem from the datasets we analyze, however we do also have the option of reclassifying complexity data into broader categories.
+\section{Model Selection}
+TODO Have some figure/table here
 
-We also intend to explore non-traditional way of classifying complexity, perhaps inspired by the popular WIRED video series "5 Levels of Difficulty". Here, complexity is classified into child, teenager, adult, professional, and expert, which are very distinct categories. These distinct categories will cause the important distinctions to surface within our model, which we can then leverage in our final step, which is generating text at varying difficulties.
+\subsection{Baseline}
+\subsection{Logistic Regression}
+TODO have some figure comparing $C$ parameter to the validation accuracy.
 
-\subsection{Generation of Text}
-Finally, we will create a model that generates or transforms text to different difficulties, or recreating the same text in a different complexity category. In particular, we are interested in simplifying complex texts - finding ways to express the same explanation of a concept, but understandable to a more general audience. Some initial ideas for implementations are to use LSTMs or GANs, which have seen success in generating sequences and images respectively. 
+\subsection{SVM}
+\subsection{AdaBoost}\dots
+\subsection{Other}
 
-One major application of this research goal is in academia - specifically, in the increasing readability difficulty of research papers. One reach goal of this project would be to find ways to safely and effectively simplify jargon into more colloquial forms, without sacrificing the overall meaning. To evaluate this model, we will find or create a rubric to distinguish the different complexity classes. Then, we will manually compare the generated output to our established rubric to measure the success of our model.
+\section{Next Steps}
+\begin{enumerate}
+    \item Random Parameter Search
+    \item LSTM (sequence model)
+    \item Generative Algorithm
+\end{enumerate}
 
-By making research more accessible to the public, we would invite more collaborators into complex fields, ultimately accelerating the growth rate of human knowledge.
 
 \section{Data and Resources}
 \begin{enumerate}
@@ -55,4 +65,18 @@ By making research more accessible to the public, we would invite more collabora
 \bibliographystyle{plain}
 \bibliography{bibliography}
 
+%\section{Plan}
+%\subsection{Classification of Complexity}
+%We will then experiment with many types of classification algorithms such as SVMs, linear models, k-nearest neighbours, decision trees, and deep learning models such as LSTMs. The different approaches can then be compared/evaluated and potentially used in ensemble, and then will be evaluated using cross-validation. 
+%
+%Complexity in past papers have been defined in different ways, from Lexile scores to age ranges, which we can experiment with. Ultimately, the complexity measurement we choose will stem from the datasets we analyze, however we do also have the option of reclassifying complexity data into broader categories.
+%
+%We also intend to explore non-traditional way of classifying complexity, perhaps inspired by the popular WIRED video series "5 Levels of Difficulty". Here, complexity is classified into child, teenager, adult, professional, and expert, which are very distinct categories. These distinct categories will cause the important distinctions to surface within our model, which we can then leverage in our final step, which is generating text at varying difficulties.
+%
+%\subsection{Generation of Text}
+%Finally, we will create a model that generates or transforms text to different difficulties, or recreating the same text in a different complexity category. In particular, we are interested in simplifying complex texts - finding ways to express the same explanation of a concept, but understandable to a more general audience. Some initial ideas for implementations are to use LSTMs or GANs, which have seen success in generating sequences and images respectively. 
+%
+%One major application of this research goal is in academia - specifically, in the increasing readability difficulty of research papers. One reach goal of this project would be to find ways to safely and effectively simplify jargon into more colloquial forms, without sacrificing the overall meaning. To evaluate this model, we will find or create a rubric to distinguish the different complexity classes. Then, we will manually compare the generated output to our established rubric to measure the success of our model.
+%
+%By making research more accessible to the public, we would invite more collaborators into complex fields, ultimately accelerating the growth rate of human knowledge.
 \end{document}

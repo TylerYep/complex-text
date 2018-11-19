@@ -43,7 +43,9 @@ Empirically, we found that performance of models were not very sensitive to the 
 \paragraph{Tf-Idf} 
 Tf-Idf extracts the word count weighted by a measure of inverse document frequency (Idf). This diminishes the importance of common words such as 'a', and 'the', and highlights the importance of uncommon words. We found that the Tf-Idf features gave worse performance the the word count feature extractor. One possible reason for this is that Tf-Idf creates feature vectors which are more similar in their topic/meaning than in structure, where for our task, the topic/meaning of the text may not be so important.
 
-\paragraph{Natural language features} TODO
+\paragraph{Natural language features}
+We also appended counts of the parts of speech in each of our documents. Using spaCy, we parsed each of the words in our documents and categorized them
+We also added the average sentence length and basic features such as the number of sentences and number of words. (Add something about normalizing for longer texts)
 
 Finally, we can combine the features above by performing concatenation. Empirically, in logistic regression models, we found that the optimal features were a concatenation of word count with the parameters described above, and the natural language features.
 

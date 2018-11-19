@@ -58,6 +58,7 @@ Finally, we can combine the features above by performing concatenation. Empirica
 TODO Have some figure/table here
 
 \subsection{Baseline}%Harry
+
 \subsection{Logistic Regression} %Harry
 TODO have some figure comparing $C$ parameter to the validation accuracy.
 
@@ -66,8 +67,6 @@ TODO have some figure comparing $C$ parameter to the validation accuracy.
 \subsection{Other}
 
 \section{Next Steps}
-%HARRY
-
 \begin{enumerate}
     \item \textbf{Hyperparameter Tuning and Cross Validation.}To further tune the hyperparameters of our models, we plan to employ random search with k-folds validation. In particular, random search has a greater change of exploring the whole parameter space due to the randomness (TODO cite https://www.analyticsindiamag.com/why-is-random-search-better-than-grid-search-for-machine-learning/). Further the use of k-folds validation allows us to incorporate the validation set in training. Furthermore, as the score in k-folds validation is computed as an average over the performance on each fold, we are less likely to overfit to any validation set. Hopefully, using these methods, we can further improve the performance our models.
     \item \textbf{LSTM (sequence model).} One key drawback in our representation of the documents is that most of the sequential information is lost in the encoding. However, it is very likely that the sequential relationships play a key role in determining the complexity of a text. The reason why sequential encodings were not used originally was that models such as Logistic Regression, SVMs, expect fixed length inputs. Sequential encodings could not satisfy this requirement without padding due to the fact that different documents have different lengths. Furthermore padding did not seem like a viable option due the variance in document length. 

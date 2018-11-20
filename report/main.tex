@@ -113,6 +113,12 @@ Another classifier we thought would be successful is AdaBoost. Given the relativ
     Finally we will create a generative algorithm to generate texts of different levels of complexity. Our proposed method is to create $3$ LSTM models, one for each complexity level. We will use the sequence of part of speech encoding as described in the previous section, but in this setting we will be learning the probability of the part of speech of the next word given the previous words. Formally we will be predicting $p(pos^{t+1}| pos^{t}, pos^{t-1}\dots pos^{1})$. Then to generate a document, we will continually sample from the model using the previously generated samples as the input, until we reach a special terminating character. Finally we will substitute the part of speech tags with actual words from a specified dictionary. 
 \end{enumerate}
 
+\section{Contributions, Code}
+Harry - Word count, Tf-Idf feature extraction, exploration of natural language features, experiments with Logistic Regression, SVM, Naive Bayes, organizational code.
+
+Tyler - TODO
+
+Code can be found https://github.com/TylerYep/complex-text. 
 
 %\section{Data and Resources}
 %\begin{enumerate}

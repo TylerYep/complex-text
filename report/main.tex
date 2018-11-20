@@ -57,20 +57,20 @@ Here we explore our data to see which of the natural language features may be pr
 \begin{figure}[h]
     \centering
     \begin{subfigure}[b]{0.23\textwidth}
-        \includegraphics[width=\textwidth]{../preprocess/avgsentlen.png}
+        \includegraphics[width=\textwidth]{figs/avgsentlen.png}
         \caption{}
     \end{subfigure}
     \begin{subfigure}[b]{0.23\textwidth}
-        \includegraphics[width=\textwidth]{../preprocess/length.png}
+        \includegraphics[width=\textwidth]{figs/length.png}
         \caption{}
     \end{subfigure}
     \begin{subfigure}[b]{0.23\textwidth}
-        \includegraphics[width=\textwidth]{../preprocess/noun.png}
+        \includegraphics[width=\textwidth]{figs/noun.png}
         \caption{}
         \label{n}
     \end{subfigure}
     \begin{subfigure}[b]{0.23\textwidth}
-        \includegraphics[width=\textwidth]{../preprocess/unnormnoun.png}
+        \includegraphics[width=\textwidth]{figs/unnormnoun.png}
         \caption{}
         \label{un}
     \end{subfigure}
@@ -86,11 +86,15 @@ TODO Have some figure/table here
 Our baseline model used a Dummy classifier to randomly predict results, based on the probability of each complexity of each text appearing. In our dataset, 630/2226 examples were level 2, 789/2226 examples were level 3, and 807/2226 examples were level 4. Our baseline simply predicted each level of difficulty randomly with probabilities equal these proportions.
 
 \paragraph{Logistic Regression} %Harry
-Logistic Regression was a quite successful, with the highest accuracy on the validation set as $79.9$. The hyperparameters for Logistic Regression were the type of regularization $L_1$ or $L_2$, and the amount to regularize by, $1/C$. Lower values of $C$ mean stronger regularization. We conducted a grid search, with $C$ as the power of $10$ between $0.001$ and $100$ inclusive. We found that $L_1$ regularization generally performs better than $L_2$ regularization. The effect of changing the $C$ parameter is illustrated in Figure %\ref{c}
+Logistic Regression was a quite successful, with the highest accuracy on the validation set as $79.9$. The hyperparameters for Logistic Regression were the type of regularization $L_1$ or $L_2$, and the amount to regularize by, $1/C$. Lower values of $C$ mean stronger regularization. We conducted a grid search, with $C$ as the power of $10$ between $0.001$ and $100$ inclusive. We found that $L_1$ regularization generally performs better than $L_2$ regularization, this is probability $L_1$ results in sparse weights, which is advantageuous for our features, as many of them may not be useful. The effect of changing the $C$ parameter is illustrated in Figure \ref{c}. We see that the $L_1$ regularization is more sensitive the changes in the $C$.
 
-
-\paragraph{SVM} 
-
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.4]{figs/c.png}
+    \end{center}
+    \caption{Effect of $C$ on validation accuracy}
+    \label{c}
+\end{figure}
 
 \paragraph{AdaBoost}
 Another classifier we thought would be successful is AdaBoost. Given the relatively high results we got from using only average sentence length as a feature, we expected an ensemble of basic classifiers to perform much better.

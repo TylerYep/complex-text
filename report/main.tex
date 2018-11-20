@@ -1,5 +1,7 @@
 \documentclass{article}
+\usepackage[]{graphicx}
 %\usepackage{parskip}
+\usepackage{subcaption}
 \usepackage[utf8]{inputenc}
 \usepackage{titling}
 \setlength{\droptitle}{-9em} 
@@ -50,17 +52,45 @@ We also added features for the counts of each parts of speech. Using spaCy, we p
 Finally, we can combine the features above by performing concatenation. Empirically, in logistic regression models, we found that the optimal features were a concatenation of word count with the parameters described above, and the natural language features.
 
 \subsection{Basic analytics on natural language features} %Harry
-In our preprocessing, we confirmed that text difficulty could not explained solely on the length of the document
+Here we explore our data to see which of the natural language features may be promising candidates for complexity classification. Figure \ref{hists} shows the distributions of several features in each complexity level. We see that the average sentence length and document length increases with the complexity classification. Furthermore, we see that document length explains much of the variance for many of the other features as seen by comparing \ref{n}, and \ref{un}. Thus average sentence length is probably a valuable feature to use in classification.
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{../preprocess/avgsentlen.png}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{../preprocess/length.png}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{../preprocess/noun.png}
+        \caption{}
+        \label{n}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.23\textwidth}
+        \includegraphics[width=\textwidth]{../preprocess/unnormnoun.png}
+        \caption{}
+        \label{un}
+    \end{subfigure}
+    \caption{Unsupervised}
+    \label{hists}
+\end{figure}
+
 
 \section{Model Selection}
 TODO Have some figure/table here
 
-\paragraph{Baseline}%Harry
+\paragraph{Baseline}
 Our baseline model used a Dummy classifier to randomly predict results, based on the probability of each complexity of each text appearing. In our 
 \paragraph{Logistic Regression} %Harry
-TODO have some figure comparing $C$ parameter to the validation accuracy.
+Logistic Regression was a quite successful, with the highest accuracy on the validation set as $79.9$. The hyperparameters for Logistic Regression were the type of regularization $L_1$ or $L_2$, and the amount to regularize by, $1/C$. Lower values of $C$ mean stronger regularization. We conducted a grid search, with $C$ as the power of $10$ between $0.001$ and $100$ inclusive. We found that $L_1$ regularization generally performs better than $L_2$ regularization. The effect of changing the $C$ parameter is illustrated in Figure %\ref{c}
 
-\paragraph{SVM}%Harry
+
+\paragraph{SVM} 
+
+
 \paragraph{AdaBoost}\dots
 \paragraph{Other}
 

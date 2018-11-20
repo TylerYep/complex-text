@@ -27,10 +27,10 @@ The goal of our project is to explore the idea of text complexity in the context
 This project's outcomes have the potential of enhancing education immensely. Complexity-classified documents allow students to find papers or conceptual explanations at understandable difficulty level. Generating or transforming text into simpler levels of complexity encourages more widespread knowledge, approachable from different fields and backgrounds. Students gain the power to understand big picture ideas and ramp up the difficulty level as they see fit, ultimately resulting in a more personalized educational experience.
 
 \section{Data: Feature Extraction and Selection}
-We are working with the Weebit Dataset (TODO something about the dataset here)
+We are working with the Weebit Dataset \cite{weebit}. TODO something here maybe.
 
 \paragraph{Data preprocessing}
-To preprocess the data, we removed new line characters, set all words to be lower case and removed any trademark disclaimers. We also split the dataset into training, validation and test sets. For the following section let $x$ represent one example of a preprocessed text. Word count and Tf-Idf feature extraction was completed using sci-kit learn (TODO cite)
+To preprocess the data, we removed new line characters, set all words to be lower case and removed any trademark disclaimers. We also split the dataset into training, validation and test sets. For the following section let $x$ represent one example of a preprocessed text. Word count and Tf-Idf feature extraction was completed using sci-kit learn \cite{scikit-learn}.
 
 \paragraph{Word count}
 This creates a vocabulary $V$ of words in the training set. Then the word count feature extractor computes
@@ -123,7 +123,7 @@ Another classifier we thought would be successful is AdaBoost. Given the relativ
 \end{enumerate}
 
 \bibliographystyle{plain}
-\bibliography{bibliography}
+\bibliography{biblio}
 
 %\section{Plan}
 %\subsection{Classification of Complexity}

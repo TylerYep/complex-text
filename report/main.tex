@@ -103,7 +103,7 @@ Another classifier we thought would be successful is AdaBoost. Given the relativ
 
 \section{Next Steps}
 \begin{enumerate}
-    \item \textbf{Hyperparameter Tuning and Cross Validation.}To further tune the hyperparameters of our models, we plan to employ random search with k-folds validation. In particular, random search has a greater change of exploring the whole parameter space due to the randomness (TODO cite https://www.analyticsindiamag.com/why-is-random-search-better-than-grid-search-for-machine-learning/). Further the use of k-folds validation allows us to incorporate the validation set in training. Furthermore, as the score in k-folds validation is computed as an average over the performance on each fold, we are less likely to overfit to any validation set. Hopefully, using these methods, we can further improve the performance our models.
+    \item \textbf{Hyperparameter Tuning and Cross Validation.}To further tune the hyperparameters of our models, we plan to employ random search with k-folds validation. In particular, random search has a greater change of exploring the whole parameter space due to the randomness \cite{random}. Further the use of k-folds validation allows us to incorporate the validation set in training. Furthermore, as the score in k-folds validation is computed as an average over the performance on each fold, we are less likely to overfit to any validation set. Hopefully, using these methods, we can further improve the performance our models.
     
     \item \textbf{LSTM (sequence model).} One key drawback in our representation of the documents is that most of the sequential information is lost in the encoding. However, it is very likely that the sequential relationships play a key role in determining the complexity of a text. The reason why sequential encodings were not used originally was that models such as Logistic Regression, SVMs, expect fixed length inputs. Sequential encodings could not satisfy this requirement without padding due to the fact that different documents have different lengths. Furthermore padding did not seem like a viable option due the variance in document length. 
 
@@ -114,13 +114,13 @@ Another classifier we thought would be successful is AdaBoost. Given the relativ
 \end{enumerate}
 
 
-\section{Data and Resources}
-\begin{enumerate}
-    \item Weebit (Dataset) \begin{verbatim} http://www.aclweb.org/anthology/W13-2907\end{verbatim}
-    \item Cambridge English Exam (Dataset) \begin{verbatim} https://www.cl.cam.ac.uk/~mx223/cedata.html\end{verbatim}
-    \item Real-Time Analysis of Reading Difficulty (Research) \begin{verbatim} https://www.cs.rochester.edu/~tetreaul/Miltsakaki.pdf\end{verbatim}
-    \item Automatic Text Difficulty Classifier for European Portuguese Teaching (Research) \begin{verbatim} http://www.inesc-id.pt/publications/11043/pdf\end{verbatim}
-\end{enumerate}
+%\section{Data and Resources}
+%\begin{enumerate}
+%    \item Weebit (Dataset) \begin{verbatim} http://www.aclweb.org/anthology/W13-2907\end{verbatim}
+%    \item Cambridge English Exam (Dataset) \begin{verbatim} https://www.cl.cam.ac.uk/~mx223/cedata.html\end{verbatim}
+%    \item Real-Time Analysis of Reading Difficulty (Research) \begin{verbatim} https://www.cs.rochester.edu/~tetreaul/Miltsakaki.pdf\end{verbatim}
+%    \item Automatic Text Difficulty Classifier for European Portuguese Teaching (Research) \begin{verbatim} http://www.inesc-id.pt/publications/11043/pdf\end{verbatim}
+%\end{enumerate}
 
 \bibliographystyle{plain}
 \bibliography{biblio}

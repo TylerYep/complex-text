@@ -27,15 +27,16 @@ The goal of our project is to explore the idea of text complexity in the context
 This project's outcomes have the potential of enhancing education immensely. Complexity-classified documents allow students to find papers or conceptual explanations at understandable difficulty level. Generating or transforming text into simpler levels of complexity encourages more widespread knowledge, approachable from different fields and backgrounds. Students gain the power to understand big picture ideas and ramp up the difficulty level as they see fit, ultimately resulting in a more personalized educational experience.
 
 \section{Data: Feature Extraction and Selection}
-We are working with the Weebit Dataset (TODO something about the dataset here)
+We are working with the Weebit Dataset 
+%(TODO something about the dataset here)
 
-\paragraph{Data preprocessing}
+\paragraph{Data Preprocessing}
 To preprocess the data, we removed new line characters, set all words to be lower case and removed any trademark disclaimers. We also split the dataset into training, validation and test sets. For the following section let $x$ represent one example of a preprocessed text. Word count and Tf-Idf feature extraction was completed using sci-kit learn (TODO cite)
 
-\paragraph{Word count}
+\paragraph{Word Count}
 This creates a vocabulary $V$ of words in the training set. Then the word count feature extractor computes
 \[\phi_{word count}(x)_i = \text{count of word $i$ in x} \]
-We experimented with changing $min_df$, and $max_df$, which represents the minimum or maximum document frequencies of a word in order to be included in the vocabulary. Adjusting these parameters controls the dimension of $\phi_{word count}(x)$ in a logical way. Furthermore, we experimented with another parameter, $binary =True$, which sets
+We experimented with changing $min_df$, and $max_df$, which represents the minimum or maximum document frequencies of a word in order to be included in the vocabulary. Adjusting these parameters controls the dimension of $\phi_{word count}(x)$ in a logical way. Furthermore, we experimented with another parameter, $binary = True$, which sets
 $$\phi_{word count}(x)_i = \begin{cases}
     1 & \text{count of word $i$ in x $\geq 1$}\\
     0 & \text{otherwise}
@@ -46,12 +47,12 @@ Empirically, we found that performance of models were not very sensitive to the 
 \paragraph{Tf-Idf} 
 Tf-Idf extracts the word count weighted by a measure of inverse document frequency (Idf). This diminishes the importance of common words such as 'a', and 'the', and highlights the importance of uncommon words. We found that the Tf-Idf features gave worse performance the the word count feature extractor. One possible reason for this is that Tf-Idf creates feature vectors which are more similar in their topic/meaning than in structure, where for our task, the topic/meaning of the text may not be so important.
 
-\paragraph{Natural language features}
+\paragraph{Natural Language Features}
 We also added features for the counts of each parts of speech. Using spaCy, we parsed each of the words in our documents and categorized them by type: adjective, noun, preposition, etc. In our feature matrix, we listed the counts of each of the 17 types of prepositions for each document. We also added the average sentence length and the number of sentences to our features array. 
 
 Finally, we can combine the features above by performing concatenation. Empirically, in logistic regression models, we found that the optimal features were a concatenation of word count with the parameters described above, and the natural language features.
 
-\subsection{Basic analytics on natural language features} %Harry
+\subsection{Basic Analytics on Natural Language Features} %Harry
 Here we explore our data to see which of the natural language features may be promising candidates for complexity classification. Figure \ref{hists} shows the distributions of several features in each complexity level. We see that the average sentence length and document length increases with the complexity classification. Furthermore, we see that document length explains much of the variance for many of the other features as seen by comparing \ref{n}, and \ref{un}. Thus average sentence length is probably a valuable feature to use in classification.
 
 \begin{figure}[h]

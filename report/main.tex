@@ -10,6 +10,7 @@
 \usepackage{cite}
 \linespread{1}
 \usepackage{hyperref}
+\setlength\parindent{0pt}
 
 \begin{document}
 \title{CS 229 Project Proposal - Text Complexity, NLP}
@@ -17,7 +18,7 @@
 \maketitle
 
 \section{Introduction}
-The goal of our project is to explore the idea of text complexity in the context of machine learning. More specifically, the questions we will answer are the following:
+The goal of our project is to explore text complexity in the context of machine learning. More specifically, we will answer the following questions:
 \begin{enumerate}
     \item What features of the text are most relevant to this classification?
     \item To what extent can machine learning methods be used to classify the complexity of a document?
@@ -27,96 +28,100 @@ The goal of our project is to explore the idea of text complexity in the context
 This project's outcomes have the potential of enhancing education immensely. Complexity-classified documents allow students to find papers or conceptual explanations at understandable difficulty level. Generating or transforming text into simpler levels of complexity encourages more widespread knowledge, approachable from different fields and backgrounds. Students gain the power to understand big picture ideas and ramp up the difficulty level as they see fit, ultimately resulting in a more personalized educational experience.
 
 \section{Data: Feature Extraction and Selection}
-We are working with the Weebit Dataset \cite{weebit}. TODO something here maybe.
+We are using the Weebit Dataset \cite{weebit}, which has 2226 examples separated into 3 different reading levels.
 
-\paragraph{Data preprocessing}
-To preprocess the data, we removed new line characters, set all words to be lower case and removed any trademark disclaimers. We also split the dataset into training, validation and test sets. For the following section let $x$ represent one example of a preprocessed text. Word count and Tf-Idf feature extraction was completed using sci-kit learn \cite{scikit-learn}.
+\paragraph{Data Preprocessing}
+To preprocess the data, we removed new line characters, set all words to be lower case and removed any trademark disclaimers. We also split the dataset into training, validation and test sets. For the following section, let $x$ represent one example of a preprocessed text. Word count and Tf-Idf feature extraction were completed using sci-kit learn \cite{scikit-learn}.
 
 \paragraph{Word Count}
-This creates a vocabulary $V$ of words in the training set. Then the word count feature extractor computes
+First, we created a vocabulary $V$ of words in the training set. Our word count feature extractor computes:
 \[\phi_{word count}(x)_i = \text{count of word $i$ in x} \]
-We experimented with changing $min_df$, and $max_df$, which represents the minimum or maximum document frequencies of a word in order to be included in the vocabulary. Adjusting these parameters controls the dimension of $\phi_{word count}(x)$ in a logical way. Furthermore, we experimented with another parameter, $binary = True$, which sets
+We experimented with changing $min_{df}$, and $max_{df}$, which represents the minimum or maximum document frequencies of a word in order to be included in the vocabulary. Adjusting these parameters controled the dimension of $\phi_{word count}(x)$. Furthermore, we experimented with another parameter, $binary = True$, which changed our feature extractor to:
 $$\phi_{word count}(x)_i = \begin{cases}
     1 & \text{count of word $i$ in x $\geq 1$}\\
     0 & \text{otherwise}
 \end{cases}$$
 
-Empirically, we found that performance of models were not very sensitive to the $min_df$ and $max_df$ parameters. However, the $binary$ option either substantially increased or decreased accuracy. Thus we set $min_{df}$, $max_{df} = 5, 80\%$, and tried both binary and not-binary. 
+Empirically, we found that performance of models were not very sensitive to the $min_{df}$ and $max_{df}$ parameters. However, the $binary = True$ option substantially increased accuracy. In our analysis, we set $min_{df} = 5$, $max_{df} = 80\%$, and tried both binary and non-binary word counting. 
 
 \paragraph{Tf-Idf} 
-Tf-Idf extracts the word count weighted by a measure of inverse document frequency (Idf). This diminishes the importance of common words such as 'a', and 'the', and highlights the importance of uncommon words. We found that the Tf-Idf features gave worse performance the the word count feature extractor. One possible reason for this is that Tf-Idf creates feature vectors which are more similar in their topic/meaning than in structure, where for our task, the topic/meaning of the text may not be so important.
+Tf-Idf extracts the word count weighted by a measure of inverse document frequency (Idf). This diminishes the importance of common words such as 'a', and 'the', and highlights the importance of uncommon words. However, we found that the Tf-Idf features gave worse performance than the word count feature extractor. One possible reason for this is that Tf-Idf creates feature vectors which are more similar in their topic/meaning than in their structure. In our task, the topic/meaning of the text may not be as important as the ordering and structure of the words.
 
 \paragraph{Natural Language Features}
-We also added features for the counts of each parts of speech. Using spaCy, we parsed each of the words in our documents and categorized them by type: adjective, noun, preposition, etc. In our feature matrix, we listed the counts of each of the 17 types of prepositions for each document. We also added the average sentence length and the number of sentences to our features array. 
-
-Finally, we can combine the features above by performing concatenation. Empirically, in logistic regression models, we found that the optimal features were a concatenation of word count with the parameters described above, and the natural language features.
+We also added features for the counts of each parts of speech. Using spaCy \cite{spacy2}, we parsed each of the words in our documents and categorized them by type: adjective, noun, preposition, etc. In our feature matrix, we listed the counts of each of the 17 types of prepositions for each document. We also added the average sentence length and the number of sentences to our features array. Furthermore, we combined some of the aforementioned features through concatenation. Empirically, in models like logistic regression, we found that the optimal features were a concatenation of word count with the parameters described above, and the natural language features.
 
 \subsection{Basic Analytics on Natural Language Features} %Harry
-Here we explore our data to see which of the natural language features may be promising candidates for complexity classification. Figure \ref{hists} shows the distributions of several features in each complexity level. We see that the average sentence length and document length increases with the complexity classification. Furthermore, we see that document length explains much of the variance for many of the other features as seen by comparing \ref{n}, and \ref{un}. Thus average sentence length is probably a valuable feature to use in classification.
+Here, we explored our data to see which of the natural language features were the most promising candidates for complexity classification. Figure \ref{hists} shows the distributions of several features in each complexity level. We see that the average sentence length and document length increased with the complexity classification. Furthermore, we see that document length explains much of the variance for many of the other features as seen by comparing \ref{n}, and \ref{un}. Though average sentence length is a valuable feature to use in classification, it is by no means a perfect indicator, as shown by the large overlapping region between levels in Figure 1a.
 
 \begin{figure}[h]
     \centering
-    \begin{subfigure}[b]{0.23\textwidth}
+    \begin{subfigure}[b]{0.25\textwidth}
         \includegraphics[width=\textwidth]{figs/avgsentlen.png}
         \caption{}
     \end{subfigure}
-    \begin{subfigure}[b]{0.23\textwidth}
+    \begin{subfigure}[b]{0.25\textwidth}
         \includegraphics[width=\textwidth]{figs/length.png}
         \caption{}
     \end{subfigure}
-    \begin{subfigure}[b]{0.23\textwidth}
+    \begin{subfigure}[b]{0.24\textwidth}
         \includegraphics[width=\textwidth]{figs/noun.png}
         \caption{}
         \label{n}
     \end{subfigure}
-    \begin{subfigure}[b]{0.23\textwidth}
+    \begin{subfigure}[b]{0.24\textwidth}
         \includegraphics[width=\textwidth]{figs/unnormnoun.png}
         \caption{}
         \label{un}
     \end{subfigure}
-    \caption{Unsupervised}
+    \caption{Natural Language Features}
     \label{hists}
 \end{figure}
 
 
 \section{Model Selection}
-TODO Have some figure/table here
-
 \paragraph{Baseline}
-Our baseline model used a Dummy classifier to randomly predict results, based on the probability of each complexity of each text appearing. In our dataset, 630/2226 examples were level 2, 789/2226 examples were level 3, and 807/2226 examples were level 4. Our baseline simply predicted each level of difficulty randomly with probabilities equal these proportions.
+Our baseline model used a Dummy classifier to randomly predict results, based on the probability of each complexity of each text appearing. In our dataset, 630/2226 examples were level 2, 789/2226 examples were level 3, and 807/2226 examples were level 4. Our baseline simply predicted each level of difficulty randomly with probabilities equal these proportions, and obtained $37.2\%$ accuracy on the validation set.
 
-\paragraph{Logistic Regression} %Harry
-Logistic Regression was a quite successful, with the highest accuracy on the validation set as $79.9$. The hyperparameters for Logistic Regression were the type of regularization $L_1$ or $L_2$, and the amount to regularize by, $1/C$. Lower values of $C$ mean stronger regularization. We conducted a grid search, with $C$ as the power of $10$ between $0.001$ and $100$ inclusive. We found that $L_1$ regularization generally performs better than $L_2$ regularization, this is probability $L_1$ results in sparse weights, which is advantageuous for our features, as many of them may not be useful. The effect of changing the $C$ parameter is illustrated in Figure \ref{c}. We see that the $L_1$ regularization is more sensitive the changes in the $C$.
+\paragraph{Logistic Regression}
+Logistic Regression was very successful, with the highest accuracy on the validation set at $79.9\%$. The hyperparameters for Logistic Regression were type of regularization ($L_1$ or $L_2$), and the amount to regularize by, $1/C$. We conducted a grid search, trying $C$ as powers of $10$ between $0.001$ and $100$ inclusive. We found that $L_1$ regularization generally performed better than $L_2$ regularization. This is likely because probability $L_1$ results in sparse weights, which was advantageous in identifying and reducing the effects of less-useful features. The effect of changing the $C$ parameter is illustrated in Figure \ref{c}. We see that the $L_1$ regularization is more sensitive the changes in $C$.
 
 \begin{figure}[h]
-    \begin{center}
-        \includegraphics[scale=0.4]{figs/c.png}
-    \end{center}
-    \caption{Effect of $C$ on validation accuracy}
-    \label{c}
+    \centering
+    \begin{subfigure}[c]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{figs/c.png}
+        \caption{Effect of $C$ on validation accuracy}
+        \label{c}
+    \end{subfigure}
+    \begin{subfigure}[d]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{figs/e.png}
+        \caption{AdaBoost w/ different parameters}
+        \label{d}
+    \end{subfigure}
+    \caption{Parameter Tuning}
 \end{figure}
 
 \paragraph{AdaBoost}
-Another classifier we thought would be successful is AdaBoost. Given the relatively high results we got from using only average sentence length as a feature, we expected an ensemble of basic classifiers to perform much better.
+Another successful classifier was AdaBoost. Given the relatively high results we obtained from using only average sentence length as a feature, we expected an ensemble of basic classifiers to perform much better. After tuning the number of classifiers and the learning rate, AdaBoost achieved $79.7\%$ on the validation set. In Figure \ref{d}, we have a plot of AdaBoost test accuracy using different learning rates and estimators (using only word count + natural language features).
 
 \paragraph{Other}
+Other algorithms we tried, such as Naive Bayes or k-Nearest-Neighbors, performed better than our baseline, but did not have as much initial success as AdaBoost and Logistic Regression, and did not seem to fit our problem as well. For example, they made questionable assumptions of independence or modeled complex documents as clusters, which did not fit with our selected features.
 
 \section{Next Steps}
 \begin{enumerate}
-    \item \textbf{Hyperparameter Tuning and Cross Validation.}To further tune the hyperparameters of our models, we plan to employ random search with k-folds validation. In particular, random search has a greater change of exploring the whole parameter space due to the randomness \cite{random}. Further the use of k-folds validation allows us to incorporate the validation set in training. Furthermore, as the score in k-folds validation is computed as an average over the performance on each fold, we are less likely to overfit to any validation set. Hopefully, using these methods, we can further improve the performance our models.
+    \item \textbf{Hyperparameter Tuning \& Cross Validation} To further tune the hyperparameters of our models, we plan to employ random search with k-fold validation. Random search has a greater chance of exploring the whole parameter space \cite{random}, and will allow us to incorporate the validation set in training. Furthermore, since the score in k-fold validation is computed as an average over the performance on each fold, we are less likely to overfit to any validation set. Hopefully, using these methods, we will further improve the performance of our models.
     
-    \item \textbf{LSTM (sequence model).} One key drawback in our representation of the documents is that most of the sequential information is lost in the encoding. However, it is very likely that the sequential relationships play a key role in determining the complexity of a text. The reason why sequential encodings were not used originally was that models such as Logistic Regression, SVMs, expect fixed length inputs. Sequential encodings could not satisfy this requirement without padding due to the fact that different documents have different lengths. Furthermore padding did not seem like a viable option due the variance in document length. 
+    \item \textbf{LSTM (Sequence Model)} One key drawback in our representation of the documents is that most of the sequential information is lost in the feature encoding. However, sequential relationships likely play a key role in determining the complexity of a text. We did not use sequential encodings originally because models such as Logistic Regression, expect fixed length inputs. Because our documents were of different lengths, sequential encodings could not satisfy this requirement without padding, and padding did not seem like a viable option due the variance in document length. 
 
-    To address this problem, we will use a Recurrent Neural Network. The architecture of this neural network allows for arbitrary length inputs and, can learn time dependencies. They have been successfully applied in NLP in the past. One proposed input for this model is to encode each document as a sequence of part of speech tags instead of word embeddings. Our hypothesis is that this will both allow the model to fit the data better, and also generalize to unseen texts. The intuition behind this is that there can be complex and simple text of any topic, thus a more important factor in determining complexity is grammatical structure of the sentence.
+    To address this problem, we can use a Recurrent Neural Network. The architecture of this neural network allows for arbitrary length inputs and can even learn time dependencies. They have also been successfully applied in NLP in the past. One viable input for this model is to encode each document as a sequence of part of speech tags instead of word embeddings. Our hypothesis is that this will both allow the model to fit the data better, and also generalize to unseen texts. The intuition behind this is that there can be complex and simple text of any topic, and thus a more important factor in determining complexity is the grammatical structure of the sentence.
 
     \item \textbf{Generative Algorithm}
-    Finally we will create a generative algorithm to generate texts of different levels of complexity. Our proposed method is to create $3$ LSTM models, one for each complexity level. We will use the sequence of part of speech encoding as described in the previous section, but in this setting we will be learning the probability of the part of speech of the next word given the previous words. Formally we will be predicting $p(pos^{t+1}| pos^{t}, pos^{t-1}\dots pos^{1})$. Then to generate a document, we will continually sample from the model using the previously generated samples as the input, until we reach a special terminating character. Finally we will substitute the part of speech tags with actual words from a specified dictionary. 
+    Finally, we will create a generative algorithm to generate texts of different levels of complexity. Our proposed method is to create $3$ LSTM models, one for each complexity level. We will use the sequence of part of speech encoding as described in the previous section, but in this setting we will be learning the probability of the part of speech of the next word given the previous words. Formally, we will be predicting $P(pos^{t+1} \mid pos^{t}, pos^{t-1},\dots, pos^{1})$. Then, to generate a document, we will continually sample from the model using the previously generated samples as the input, until we reach a special terminating character. Finally, we will substitute the part of speech tags with actual words from a specified dictionary. 
 \end{enumerate}
 
 \section{Contributions, Code}
 Harry - Word count, Tf-Idf feature extraction, exploration of natural language features, experiments with Logistic Regression, SVM, Naive Bayes, organizational code.\\
-Tyler - TODO\\
-Code can be found https://github.com/TylerYep/complex-text. 
+Tyler - Natural language feature extraction, AdaBoost, Naive Bayes, baseline results \\
+Code can be found at: https://github.com/TylerYep/complex-text. 
 
 %\section{Data and Resources}
 %\begin{enumerate}

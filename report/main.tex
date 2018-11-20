@@ -83,7 +83,8 @@ Here we explore our data to see which of the natural language features may be pr
 TODO Have some figure/table here
 
 \paragraph{Baseline}
-Our baseline model used a Dummy classifier to randomly predict results, based on the probability of each complexity of each text appearing. In our 
+Our baseline model used a Dummy classifier to randomly predict results, based on the probability of each complexity of each text appearing. In our dataset, 630/2226 examples were level 2, 789/2226 examples were level 3, and 807/2226 examples were level 4. Our baseline simply predicted each level of difficulty randomly with probabilities equal these proportions.
+
 \paragraph{Logistic Regression} %Harry
 Logistic Regression was a quite successful, with the highest accuracy on the validation set as $79.9$. The hyperparameters for Logistic Regression were the type of regularization $L_1$ or $L_2$, and the amount to regularize by, $1/C$. Lower values of $C$ mean stronger regularization. We conducted a grid search, with $C$ as the power of $10$ between $0.001$ and $100$ inclusive. We found that $L_1$ regularization generally performs better than $L_2$ regularization. The effect of changing the $C$ parameter is illustrated in Figure %\ref{c}
 
@@ -91,18 +92,21 @@ Logistic Regression was a quite successful, with the highest accuracy on the val
 \paragraph{SVM} 
 
 
-\paragraph{AdaBoost}\dots
+\paragraph{AdaBoost}
+Another classifier we thought would be successful is AdaBoost. Given the relatively high results we got from using only average sentence length as a feature, we expected an ensemble of basic classifiers to perform much better.
+
 \paragraph{Other}
 
 \section{Next Steps}
 \begin{enumerate}
     \item \textbf{Hyperparameter Tuning and Cross Validation.}To further tune the hyperparameters of our models, we plan to employ random search with k-folds validation. In particular, random search has a greater change of exploring the whole parameter space due to the randomness (TODO cite https://www.analyticsindiamag.com/why-is-random-search-better-than-grid-search-for-machine-learning/). Further the use of k-folds validation allows us to incorporate the validation set in training. Furthermore, as the score in k-folds validation is computed as an average over the performance on each fold, we are less likely to overfit to any validation set. Hopefully, using these methods, we can further improve the performance our models.
+    
     \item \textbf{LSTM (sequence model).} One key drawback in our representation of the documents is that most of the sequential information is lost in the encoding. However, it is very likely that the sequential relationships play a key role in determining the complexity of a text. The reason why sequential encodings were not used originally was that models such as Logistic Regression, SVMs, expect fixed length inputs. Sequential encodings could not satisfy this requirement without padding due to the fact that different documents have different lengths. Furthermore padding did not seem like a viable option due the variance in document length. 
 
-        To address this problem, we will use a Recurrent Neural Network. The architecture of this neural network allows for arbitrary length inputs and, can learn time dependencies. They have been successfully applied in NLP in the past. One proposed input for this model is to encode each document as a sequence of part of speech tags instead of word embeddings. Our hypothesis is that this will both allow the model to fit the data better, and also generalize to unseen texts. The intuition behind this is that there can be complex and simple text of any topic, thus a more important factor in determining complexity is grammatical structure of the sentence.
+    To address this problem, we will use a Recurrent Neural Network. The architecture of this neural network allows for arbitrary length inputs and, can learn time dependencies. They have been successfully applied in NLP in the past. One proposed input for this model is to encode each document as a sequence of part of speech tags instead of word embeddings. Our hypothesis is that this will both allow the model to fit the data better, and also generalize to unseen texts. The intuition behind this is that there can be complex and simple text of any topic, thus a more important factor in determining complexity is grammatical structure of the sentence.
 
     \item \textbf{Generative Algorithm}
-        Finally we will create a generative algorithm to generate texts of different levels of complexity. Our proposed method is to create $3$ LSTM models, one for each complexity level. We will use the sequence of part of speech encoding as described in the previous section, but in this setting we will be learning the probability of the part of speech of the next word given the previous words. Formally we will be predicting $p(pos^{t+1}| pos^{t}, pos^{t-1}\dots pos^{1})$. Then to generate a document, we will continually sample from the model using the previously generated samples as the input, until we reach a special terminating character. Finally we will substitute the part of speech tags with actual words from a specified dictionary. 
+    Finally we will create a generative algorithm to generate texts of different levels of complexity. Our proposed method is to create $3$ LSTM models, one for each complexity level. We will use the sequence of part of speech encoding as described in the previous section, but in this setting we will be learning the probability of the part of speech of the next word given the previous words. Formally we will be predicting $p(pos^{t+1}| pos^{t}, pos^{t-1}\dots pos^{1})$. Then to generate a document, we will continually sample from the model using the previously generated samples as the input, until we reach a special terminating character. Finally we will substitute the part of speech tags with actual words from a specified dictionary. 
 \end{enumerate}
 
 

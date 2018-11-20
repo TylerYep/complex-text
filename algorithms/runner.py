@@ -36,6 +36,7 @@ AdaBoost - 0.74, 0.69
 
 wb_path = 'preprocess/weebit_features.pkl'
 
+
 def get_results(alg: Algorithm, data, feature_lists, options_c, options_wc, options_tfidf):
     prod = itertools.product(feature_lists, options_c, options_wc, options_tfidf)
     for f, c, wc, t in tqdm(list(prod)):
@@ -46,7 +47,7 @@ def get_results(alg: Algorithm, data, feature_lists, options_c, options_wc, opti
 features = [[x] for x in util.features] + [['word count', 'nl'], ['tfidf', 'nl']]#, ['word count', 'tfidf'], ['word count', 'tfidf', 'nl']]
 wc_opts = [{}, {'min_df':5}, {'max_df':0.8}, {'min_df':5, 'max_df':0.8}, {'min_df':5, 'max_df':0.8, 'binary':True}]
 tfidf_opts = [{}, {'min_df':5}, {'max_df':0.8}, {'min_df':5, 'max_df':0.8}]
-lr_opts = [{'penalty':'l2', 'C':10**i} for i in range(-3, 3)]#[{'penalty':'l1', 'C':10}, {'penalty':'l1', 'C':100}, {'penalty':'l1', 'C':0.001}]#, {'penalty':'l2', 'C':1}, {'penalty':'l2', 'C':0.8}, {'penalty':'l2', 'C':0.6}]
+lr_opts = [{'penalty':'l2', 'C':10**i} for i in range(-3, 3)] + [{'penalty':'l1', 'C':10**i} for i in range(-3, 3)]
 svm_opts = [ {'kernel':'rbf', 'C':1}, {'kernel':'rbf', 'C':0.8}, {'kernel':'rbf', 'C':0.6}, {'kernel':'linear', 'C':1}, {'kernel':'linear', 'C':0.8}, {'kernel':'linear', 'C':0.6} ]
 
 def bit_twiddle_params(a, data, features):
@@ -72,3 +73,8 @@ if __name__ == "__main__":
     a = algs.load_alg('AdaBoost')
     data = util.load_pkl(wb_path)
     bit_twiddle_params(a, data, ['word count', 'nl'])
+    #param_dist = {'penalty':['l1', 'l2'], 'C':[10**i for i in range(-5, 5)]}
+    #a.search(data, param_dist, ['word count', 'nl'], {'min_df':5, 'max_df':0.8}, {})
+    #a.run(data, ['nl'])
+    get_results(a, data,  [['word count','nl']],lr_opts, [{'min_df':5, 'max_df':0.8}], [{}])
+    a.to_csv()

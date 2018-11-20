@@ -10,6 +10,7 @@ import os, sys
 import util
 sys.path.append('preprocess')
 
+
 def load_alg(name):
     path = 'algorithms/results/' + name +'.pkl'
     if os.path.isfile(path):
@@ -100,5 +101,5 @@ def combine_csv():
     combined_results.to_csv(os.path.join('algorithms/results', 'combined_results.csv'), index=False)
 
 if __name__ == "__main__":
-    # Test with runner
+    combine_csv()
     pass

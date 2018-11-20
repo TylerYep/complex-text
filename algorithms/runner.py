@@ -43,36 +43,32 @@ def get_results(alg: Algorithm, data, feature_lists, options_c, options_wc, opti
         if not('word count' in f or wc == {}): continue
         alg.run(data, f, c, wc, t)
 
-def bit_twiddle_params(a, data, features):
-    best_options = {}
-    best_train, best_test = 0.0, 0.0
-    for eta in {0.2}:
-        options = {'n_estimators': 50, 'learning_rate': eta}
-        a.run(data, features, clf_options=options)
-        a.to_csv()
-        acc_train = a.results.loc[len(a.results) - 1].train_acc
-        acc_test = a.results.loc[len(a.results) - 1].test_acc
-        if acc_train > best_train and acc_test > best_test:
-            best_train, best_test = acc_train, acc_test
-            best_options = options
-        print(best_options, best_train, best_test)
-
+features = [[x] for x in util.features] + [['word count', 'nl'], ['tfidf', 'nl']]#, ['word count', 'tfidf'], ['word count', 'tfidf', 'nl']]
 wc_opts = [{}, {'min_df':5}, {'max_df':0.8}, {'min_df':5, 'max_df':0.8}, {'min_df':5, 'max_df':0.8, 'binary':True}]
 tfidf_opts = [{}, {'min_df':5}, {'max_df':0.8}, {'min_df':5, 'max_df':0.8}]
 lr_opts = [{'penalty':'l2', 'C':10**i} for i in range(-3, 3)]#[{'penalty':'l1', 'C':10}, {'penalty':'l1', 'C':100}, {'penalty':'l1', 'C':0.001}]#, {'penalty':'l2', 'C':1}, {'penalty':'l2', 'C':0.8}, {'penalty':'l2', 'C':0.6}]
 svm_opts = [ {'kernel':'rbf', 'C':1}, {'kernel':'rbf', 'C':0.8}, {'kernel':'rbf', 'C':0.6}, {'kernel':'linear', 'C':1}, {'kernel':'linear', 'C':0.8}, {'kernel':'linear', 'C':0.6} ]
 
-features = [[x] for x in util.features] + [['word count', 'nl'], ['tfidf', 'nl']]#, ['word count', 'tfidf'], ['word count', 'tfidf', 'nl']]
+def bit_twiddle_params(a, data, features):
+    # best_options = {}
+    # best_train, best_test = 0.0, 0.0
+    for es in {50, 100, 150, 200}:
+        for eta in tqdm(range(1, 11)):
+            options = {'n_estimators': es, 'learning_rate': eta * 0.1}
+            a.run(data, features, clf_options=options, wc_params={'min_df':5, 'max_df':0.8, 'binary':True})
+            a.to_csv()
+            #     acc_train = a.results.loc[len(a.results) - 1].train_acc
+            #     acc_test = a.results.loc[len(a.results) - 1].test_acc
+            #     if acc_train > best_train and acc_test > best_test:
+            #         best_train, best_test = acc_train, acc_test
+            #         best_options = options
+            # print(best_options, best_train, best_test)
 
 
 #names = ["Nearest_Neighbors", "SVM", "Gaussian_Process",
 #         "Decision_Tree", "Random_Forest", "Neural_Net", "AdaBoost",
 #         "Naive_Bayes", "Logistic_Regression", 'Dummy']
 if __name__ == "__main__":
-    a = algs.load_alg('SVM')
+    a = algs.load_alg('AdaBoost')
     data = util.load_pkl(wb_path)
-    # bit_twiddle_params(a, data, ['word count', 'nl'])
-    param_dist = {'penalty':['l1', 'l2'], 'C':[10**i for i in range(-5, 5)]}
-    #a.search(data, param_dist, ['word count', 'nl'], {'min_df':5, 'max_df':0.8}, {})
-    get_results(a, data,  [['word count', 'nl']],lr_opts, [{'min_df':5, 'max_df':0.8}], [{}])
-    a.to_csv()
+    bit_twiddle_params(a, data, ['word count', 'nl'])

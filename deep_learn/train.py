@@ -25,9 +25,43 @@ EMBEDDING_DIM = 64
 NUM_LAYERS = 1
 HIDDEN_DIM = 256
 BATCH_SIZE = 32
-OUTPUT_DIM = 2 if BINARY else 5
+OUTPUT_DIM = 3
 LR = 0.001
 # ============================
+
+def evaluate(model, loader, analyze=False):
+    """
+    Evaluates the model on the data in loader. 
+    If analyze is True, the predictions and
+    actual labels are returned as well.
+
+    Arguments
+        model (Tagger): Model to be evaluated
+        loader (DataLoader):    Data for the model to be 
+                                evaluated on
+
+    Returns
+        if analyze: (float):    Accuracy of the model on the data
+        else: (float, array, array): Accuracy, predictions, labels
+    """
+    model.eval()
+    preds, labels = [],[]
+    for sentence, label in tqdm(loader):
+        sentence, lens, label = prepare_texts(sentence, label, model.batch_size)
+        model.hidden = model.init_hidden()
+        activation = model(sentence, lens).data.numpy()
+        preds.append(activation.argmax(1))
+        label = label.numpy()
+        labels.append(label)
+    preds, labels = np.array(preds).flatten(), np.array(labels).flatten()
+    correct = preds == labels
+    
+    accuracy = sum(correct)/len(correct)
+    to_return = accuracy
+    if analyze:
+        to_return = [accuracy, preds, labels]
+
+    return to_return
 
 def prepare_texts(sentences, labels=None, bs=1, return_sorts=False):
     """
@@ -106,15 +140,13 @@ def train(model, train_loader, dev_loader, fname=None, num_epochs=1000):
             loss.backward()
             optimizer.step()
 
-        #TODO do evaluate
-
-        #train_acc = evaluate(model, train_loader)
-        #dev_acc = evaluate(model, dev_loader)
-        #model.save_checkpoint(optimizer.state_dict(), dev_acc, epoch)
+        train_acc = evaluate(model, train_loader)
+        dev_acc = evaluate(model, dev_loader)
+        model.save_checkpoint(optimizer.state_dict(), dev_acc, epoch)
 
         print("Loss after epoch {}: {}".format(epoch, np.mean(losses)))
-        #print("Dev Accuracy: {}, Train Accuracy: {}".format(dev_acc, train_acc))
-        #print("Best Dev Accuracy: ", model.best_dev)
+        print("Dev Accuracy: {}, Train Accuracy: {}".format(dev_acc, train_acc))
+        print("Best Dev Accuracy: ", model.best_dev)
 
     return model
 

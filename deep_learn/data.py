@@ -55,7 +55,7 @@ class Data(Dataset):
         return len(self.texts)
 
     def __getitem__(self, ix):
-        return np.array(self.texts[ix][0]), self.texts[ix][1]
+        return np.array(self.texts[ix][0]), self.texts[ix][1] - 2
 
 if __name__ == "__main__":
     # TODO, fix weebit, rerun the doc_objs thing, rerun make_vocab

@@ -21,7 +21,7 @@ class DataFeatures:
         self.count_matrix, self.tfidf_matrix = None, None
 
         # self.get_tfidf()   # These two are fast and should just be called everytime
-        self.get_wc()      # with different options.
+        # self.get_wc()      # with different options.
         self.nl_matrix = self.get_nlfeatures()
 
         self.fname = 'preprocess/' + dataset + '_features.pkl'
@@ -75,7 +75,7 @@ class DataFeatures:
         self.count_matrix = count.transform(df.text).todense()
         return self.count_matrix
 
-    def get_nlfeatures(self):
+    def get_nlfeatures(self, save_nl=False):
         '''
         Arguments
         Returns
@@ -96,9 +96,11 @@ class DataFeatures:
 
         num_docs = 0
         feature_matrix = []
+        if save_nl: doc_objs = []
+
         for text in self.raw.text:
-            if num_docs % 100 == 0: print(num_docs)
             doc = nlp(text)
+
             num_docs += 1
             POS_TAGS = [
                 "", "ADJ", "ADP", "ADV", "AUX", "CONJ",
@@ -121,6 +123,10 @@ class DataFeatures:
             feats.append(len(sentences))            # num_sentences
             feats.append(avg_sent_length)
             feature_matrix.append(feats)
+            if save_nl: doc_objs.append(doc)
+
+        if save_nl: util.save_pkl('preprocess/doc_objs.pkl', doc_objs)
+
 
         return np.array(feature_matrix)
 
@@ -156,13 +162,19 @@ def load_one_stop():
     # TODO
     return pd.read_csv('')
 
+def fix_non_ascii():
+    wb = load_weebit()
+    c_1, c_2 = 0, 0
+    for text in wb.text:
+        for w in text.split():
+            if not len(w) == len(w.encode()):
+                print(w)
+    # TODO Tyler, can you figure this thing out, and fix it? 
+
 
 def prep_onestop():
     pass
 
 
 if __name__ == "__main__":
-    # prep_weebit()
-    x = DataFeatures('weebit')
-    #x = util.load_pkl('preprocess/weebit_features.pkl')
-    x.__init__('weebit')
+    fix_non_ascii()

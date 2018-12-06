@@ -18,7 +18,10 @@ from tqdm import tqdm
 import util
 from model import Model
 
-word2ind, ind2word = util.load_pkl('deep_learn/vocab.pkl')
+
+# HI comment one out 2 is the one using real words
+#word2ind, ind2word = util.load_pkl('deep_learn/vocab.pkl')
+word2ind, ind2word = util.load_pkl('deep_learn/vocab2.pkl')
 
 # ==== PARAMETERS ============
 N_EMBS = len(word2ind)
@@ -187,9 +190,8 @@ def collate(batch):
     return X, Y
 
 if __name__ == "__main__":
-    _experiments()
-    # model = Model(NUM_LAYERS, EMBEDDING_DIM, HIDDEN_DIM, BATCH_SIZE, N_EMBS, OUTPUT_DIM)
-    # train_loader = DataLoader(Data(0), batch_size=BATCH_SIZE, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
-    # dev_loader = DataLoader(Data(1), batch_size=BATCH_SIZE, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
-    # train(model, train_loader, dev_loader)
-    # print(model.best_dev)
+    #_experiments()
+    model = Model(NUM_LAYERS, EMBEDDING_DIM, HIDDEN_DIM, BATCH_SIZE, N_EMBS, OUTPUT_DIM)
+    train_loader = DataLoader(Data(0, pos=False), batch_size=BATCH_SIZE, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
+    dev_loader = DataLoader(Data(1, pos=False), batch_size=BATCH_SIZE, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
+    train(model, train_loader, dev_loader)

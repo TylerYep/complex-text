@@ -47,9 +47,11 @@ def make_vocab_real_words():
     dataset = []
     vocab = Counter()
     for i, doc in enumerate(wb.text):
-        x = doc.split()
-        dataset.append(x)
-        vocab += Counter(x)
+        doc = doc.split()
+        doc = [x.lower() for x in doc]
+        dataset.append(doc)
+        doc = [x for x in doc if x.isalpha()]
+        vocab += Counter(doc)
 
     words = ['UNK'] + [w for w, c in vocab.items() if c > 5]
     word2ind = {w : i for i, w in enumerate(words)}
@@ -61,10 +63,13 @@ def make_vocab_real_words():
     util.save_pkl('deep_learn/weebit_words.pkl', dataset)
 
 class Data(Dataset):
-    def __init__(self, split, size=None):
+    def __init__(self, split, size=None, pos=True):
         # Split 0 = train, 1 = dev, 2 = test
 
-        self.texts = util.load_pkl('deep_learn/weebit_pos.pkl')
+        if pos:
+            self.texts = util.load_pkl('deep_learn/weebit_pos.pkl')
+        else:
+            self.texts = util.load_pkl('deep_learn/weebit_words.pkl')
         self.texts = [x for x in self.texts if x[2] == split]
         if size is not None:
             self.texts = self.texts[:size]
@@ -76,11 +81,11 @@ class Data(Dataset):
         return np.array(self.texts[ix][0]), self.texts[ix][1] - 2
 
 if __name__ == "__main__":
-    # TODO, fix weebit, rerun the doc_objs thing, rerun make_vocab
 
     #make_vocab_and_dataset()
     make_vocab_real_words()
-    vc = util.load_pkl('deep_learn/vocab.pkl')
+    vc = util.load_pkl('deep_learn/vocab2.pkl')
+    print(vc)
     x = Data(0)
     print(x[0])
         

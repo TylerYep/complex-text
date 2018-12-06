@@ -42,6 +42,24 @@ def make_vocab_and_dataset():
     util.save_pkl('deep_learn/vocab.pkl', (word2ind, ind2word))
     util.save_pkl('deep_learn/weebit_pos.pkl', dataset)
 
+def make_vocab_real_words():
+    wb = read_data.load_weebit()
+    dataset = []
+    vocab = Counter()
+    for i, doc in enumerate(wb.text):
+        x = doc.split()
+        dataset.append(x)
+        vocab += Counter(x)
+
+    words = ['UNK'] + [w for w, c in vocab.items() if c > 5]
+    word2ind = {w : i for i, w in enumerate(words)}
+    ind2word = {i : w for i, w in enumerate(words)}
+
+    dataset = [(encode(x, word2ind), wb.level[i], wb.split[i]) for i, x in enumerate(dataset)]
+
+    util.save_pkl('deep_learn/vocab2.pkl', (word2ind, ind2word))
+    util.save_pkl('deep_learn/weebit_words.pkl', dataset)
+
 class Data(Dataset):
     def __init__(self, split, size=None):
         # Split 0 = train, 1 = dev, 2 = test
@@ -61,6 +79,7 @@ if __name__ == "__main__":
     # TODO, fix weebit, rerun the doc_objs thing, rerun make_vocab
 
     #make_vocab_and_dataset()
+    make_vocab_real_words()
     vc = util.load_pkl('deep_learn/vocab.pkl')
     x = Data(0)
     print(x[0])

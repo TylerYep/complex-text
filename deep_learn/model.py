@@ -1,5 +1,5 @@
-import numpy as np 
-import matplotlib.pyplot as plt
+import numpy as np
+# import matplotlib.pyplot as plt
 import torch
 from torch import nn
 import torch.nn.functional as F
@@ -20,7 +20,7 @@ class Model(nn.Module):
         n_embeds (int): Size of the vocabulary
         output_dim (int):   Number of classes to predict
     """
-    def __init__(self, num_layers, embedding_dim, hidden_dim, 
+    def __init__(self, num_layers, embedding_dim, hidden_dim,
                 batch_size, n_embeds=20354, output_dim=3):
 
         super(Model, self).__init__()
@@ -62,7 +62,7 @@ class Model(nn.Module):
         embeds = self.word_embeddings(sentence)
         embeds = torch.nn.utils.rnn.pack_padded_sequence(embeds, lengths)
 
-        # LSTM 
+        # LSTM
         lstm_out, self.hidden = self.lstm(embeds, self.hidden)
         lstm_out, _= torch.nn.utils.rnn.pad_packed_sequence(lstm_out)
 
@@ -105,7 +105,7 @@ class Model(nn.Module):
         Predict the tags of each sentence in sentence
 
         Arguments
-            sentences (list of str): Sentences to be predicted 
+            sentences (list of str): Sentences to be predicted
             word2ind (dict): Mapping from words to indices in the vocab
 
         Returns
@@ -115,7 +115,7 @@ class Model(nn.Module):
         preprocessed = [preprocess(s.text) for s in sentences]
         preprocessed = [' '.join([str(word2ind[w] if w in word2ind else '1') for w in s.split()]) for s in preprocessed]
         self.batch_size = len(preprocessed)
-        
+
         self.hidden = self.init_hidden()
         model_in, lens, _, sort = prepare_sentence(preprocessed, None, self.batch_size, True)
         inverse_sort = sort.argsort()
@@ -125,5 +125,3 @@ class Model(nn.Module):
 
         labels = np.array(['is_job_desc', 'is_resp', 'is_exp_qual', 'is_company', 'is_other'])
         return labels[preds]
-
-

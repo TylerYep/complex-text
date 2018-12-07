@@ -22,6 +22,69 @@ from model import Model
 #word2ind, ind2word = util.load_pkl('deep_learn/vocab.pkl')
 word2ind, ind2word = util.load_pkl('deep_learn/vocab2.pkl')
 
+def model_from_fname(fname, ModelClass):
+    """
+    Loads a model from the file name. In particular, this 
+    function extracts the parameter values of the model from 
+    the filename, and initializes the model with these
+    parameters.
+
+    Arguments
+        fname (string): Filename to load
+        ModelClass (class): Python class of the model i.e. Tagger
+
+    Returns
+        (ModelClass):   Model that was loaded
+        (int):  Epoch at time of saving
+        (float):    Best error on the development/validation set
+    """
+    params = fname_to_params(fname)
+    model = ModelClass(*params, n_embeds=22569)
+    epoch, best_dev = load_model(model, None, fname, 128)
+    return model, epoch, best_dev
+
+def fname_to_params(fname):
+    """
+    Extract model parameters from a filename
+
+    Arguments
+        fname (str): File name of a LSTM model 
+
+    Returns
+        (list): List of parameter values in this
+                order: n_layers, embedding_dim, 
+                hidden_dim, batch_size
+    """
+    nums = re.findall(r'\d+', fname)
+    return [int(x) for x in nums]
+
+
+def load_model(model, optimizer, fname, bs):
+    """
+    Loads the weights of a model and parameters
+    of the optimizer. The model and optimizer 
+    object are changed in place and therefore
+    not returned.
+
+    Arguments
+        model (Tagger): Model to be loaded
+        optimizer ():   The optimizer to be loaded
+        fname (str):    Path to the model checkpoint
+        bs (int):   Batch size
+
+    Returns
+        (int):  Epoch of the model
+        (float):    Best score on the development set
+    """
+    checkpoint = torch.load(fname)
+
+    model.epoch = checkpoint['epoch']
+    model.best_dev = checkpoint['best_dev']
+    model.load_state_dict(checkpoint['state_dict'])
+    model.batch_size = bs
+    if optimizer is not None: optimizer.load_state_dict(checkpoint['optimizer'])
+    return model.epoch, model.best_dev
+
 # ==== PARAMETERS ============
 N_EMBS = len(word2ind)
 EMBEDDING_DIM = 64

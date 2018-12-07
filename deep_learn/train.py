@@ -5,11 +5,12 @@ Email: harryshahai@gm*
 Description: Trains LSTM
 """
 
+import itertools
 import pandas as pd
-import numpy as np 
+import numpy as np
 from data import Data
 import sys
-import torch 
+import torch
 from torch.utils.data import DataLoader
 from torch.optim import Adam
 from torch import nn
@@ -97,13 +98,13 @@ LR = 0.001
 
 def evaluate(model, loader, analyze=False):
     """
-    Evaluates the model on the data in loader. 
+    Evaluates the model on the data in loader.
     If analyze is True, the predictions and
     actual labels are returned as well.
 
     Arguments
         model (Tagger): Model to be evaluated
-        loader (DataLoader):    Data for the model to be 
+        loader (DataLoader):    Data for the model to be
                                 evaluated on
 
     Returns
@@ -121,8 +122,8 @@ def evaluate(model, loader, analyze=False):
         labels.append(label)
     preds, labels = np.array(preds).flatten(), np.array(labels).flatten()
     correct = preds == labels
-    
-    accuracy = sum(correct)/len(correct)
+
+    accuracy = sum(correct)/len(correct) if len(correct) > 0 else 0
     to_return = accuracy
     if analyze:
         to_return = [accuracy, preds, labels]
@@ -131,28 +132,28 @@ def evaluate(model, loader, analyze=False):
 
 def prepare_texts(sentences, labels=None, bs=1, return_sorts=False):
     """
-    Prepares sentences for input into the LSTM model. Note that when 
+    Prepares sentences for input into the LSTM model. Note that when
     batch size (bs) > 1, the returned sentences and labels will be sorted
     by length (this is a requirement for pack_padded_sequences). Sentences
     will be padded with zeros to the right.
 
     Arguments
-        sentences (list of str):    List of strings that are indices of the 
+        sentences (list of str):    List of strings that are indices of the
                                     words in the vocab separated by spaces
-        labels (list of int):   List of the labels. Ignored if none (e.g, 
+        labels (list of int):   List of the labels. Ignored if none (e.g,
                                 when there is not a label)
-        bs (int):   Batch size to proces (typically just the length of 
+        bs (int):   Batch size to proces (typically just the length of
                     sentences)
 
-        return_sorts (bool):    If true, return the result of argsorting by 
-                                length. (argsort this again to get back the 
-                                original list). This is useful to retrieve 
+        return_sorts (bool):    If true, return the result of argsorting by
+                                length. (argsort this again to get back the
+                                original list). This is useful to retrieve
                                 the original order of items.
     Returns
         (tensor):   Input to the LSTM model
-        (list): List of lengths of sentences 
+        (list): List of lengths of sentences
         (list): List of labels
-        (list): Output of argsort by length 
+        (list): Output of argsort by length
     """
     sentence_lengths = np.array([len(s) if len(s) > 1 else 1 for s in sentences])
     max_len = max(sentence_lengths)
@@ -187,7 +188,7 @@ def train(model, train_loader, dev_loader, fname=None, num_epochs=1000):
         num_epochs (int):   Number of epochs to train for
 
     Returns
-        (Model object) the trained model 
+        (Model object) the trained model
     """
     model.train()
     loss_function = nn.NLLLoss()
@@ -240,8 +241,8 @@ def _experiments(num_layers=[1, 2, 3], batch_size=[128, 64],
         print()
 
         model = Model(n, e, h, b, N_EMBS, OUTPUT_DIM)
-        train_loader = DataLoader(JobPostingData('train'), batch_size=b, shuffle=True, num_workers=0, drop_last=True)
-        dev_loader = DataLoader(JobPostingData('dev'), batch_size=b, shuffle=True, num_workers=0, drop_last=True)
+        train_loader = DataLoader(Data(0), batch_size=b, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
+        dev_loader = DataLoader(Data(1), batch_size=b, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
         train(model, train_loader, dev_loader, num_epochs=10)
         results.append([n, b, e, h, model.best_dev])
     print(results)
@@ -253,7 +254,7 @@ def collate(batch):
 
 if __name__ == "__main__":
     #_experiments()
-    model=Model(NUM_LAYERS, EMBEDDING_DIM, HIDDEN_DIM, BATCH_SIZE, N_EMBS, OUTPUT_DIM)
+    model = Model(NUM_LAYERS, EMBEDDING_DIM, HIDDEN_DIM, BATCH_SIZE, N_EMBS, OUTPUT_DIM)
     train_loader = DataLoader(Data(0, pos=False), batch_size=BATCH_SIZE, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
     dev_loader = DataLoader(Data(1, pos=False), batch_size=BATCH_SIZE, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
     train(model, train_loader, dev_loader)

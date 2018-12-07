@@ -145,6 +145,8 @@ def prep_weebit():
                 this_text = this_text.replace(
                     'All trademarks and logos are property of Weekly Reader Corporation.', '')
                 this_text = ftfy.fix_text(this_text)
+                this_text = this_text.replace('Ò', '\'').replace('Õ', '\'').replace('Ó', '\'')
+                this_text = this_text.replace('Ñ', ' ').replace('Ð', '-').replace('Ô', '\'')
                 data.append((this_text, int(difficulty[-1]), t))
 
     df = pd.DataFrame(data)
@@ -162,14 +164,16 @@ def load_one_stop():
     # TODO
     return pd.read_csv('')
 
-def fix_non_ascii():
+def check_non_ascii():
+    counter = 0
     wb = load_weebit()
     c_1, c_2 = 0, 0
     for text in wb.text:
         for w in text.split():
             if not len(w) == len(w.encode()):
                 print(w)
-    # TODO Tyler, can you figure this thing out, and fix it? 
+                counter += 1
+    print(counter)
 
 
 def prep_onestop():
@@ -177,4 +181,5 @@ def prep_onestop():
 
 
 if __name__ == "__main__":
-    fix_non_ascii()
+    prep_weebit()
+    check_non_ascii()

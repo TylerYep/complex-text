@@ -106,16 +106,55 @@ Another successful classifier was AdaBoost. Given the relatively high results we
 \paragraph{Other}
 Other algorithms we tried, such as Naive Bayes or k-Nearest-Neighbors, performed better than our baseline, but did not have as much initial success as AdaBoost and Logistic Regression, and did not seem to fit our problem as well. For example, they made questionable assumptions of independence or modeled complex documents as clusters, which did not fit with our selected features.
 
+\section{Recurrent Neural Networks}
+In this section, we explore the usage of Recurrent Neural Networks, in particular LSTMs for the complexity classification task. One key drawback in our representation of the documents so far is that all of the sequential information is lost in the feature encoding. For example any permutation of the document results in the same feature vector. However, sequential relationships likely play a key role in determining the complexity of a text. We did not use sequential encodings originally because models such as Logistic Regression, expect fixed length inputs. Because our documents were of different lengths, sequential encodings could not satisfy this requirement without padding, and padding did not seem like a viable option due the variance in document length. 
+
+To address this problem, we can use a Recurrent Neural Network. The architecture of this neural network allows for arbitrary length inputs and can even learn time dependencies. They have also been successfully applied in NLP in the past. One viable input for this model is to encode each document as a sequence of part of speech tags instead of word embeddings. Our hypothesis is that this will both allow the model to fit the data better, and also generalize to unseen texts. The intuition behind this is that there can be complex and simple text of any topic, and thus a more important factor in determining complexity is the grammatical structure of the sentence. We hypothesize that using word embeddings will cause the model to overfit. 
+
+\subsection{Model Architecture}
+\begin{enumerate}
+    \item \textbf{Encoding.} As mentioned, the encoding we chose was to represent texts as a sequence of part of speech tags. %TODO vocab size 
+    \item \textbf{Embedding Layer} %TODO Harry
+    \item \textbf{LSTM}
+    \item \textbf{Linear}
+    \item \textbf{Softmax}
+\end{enumerate}
+
+\subsection{Results}
+%TODO tyler: 
+% Hyperparameter tuning
+% Some pretty loss plots and critical comparison with previous models
+
+
+
+TODO include specifics about the implementation?
+
+\section{Text Generation}
+The final goal of this project was to experiment with generating texts of different complexity levels. In this project we focus on grammar and sentence/document structure as the primary determinant of complexity. Therefore we employ LSTM models again, but this time for sequence prediction instead of classification. In particular given the sequence of part of speech encodings described in the previous section, the model learns $p(pos^{t+1} \mid pos^{t}, pos^{t-1},\dots, pos^{1})$. We can sample from this probability distribution to generate sequences of part of speech tags.
+
+\paragraph{Encoding}
+In addition to the sequence of part of speech tags, for the generation task, we decided to directly encode the punctuation instead of having them all transformed to the same tag \textit{PUNCT}. Furthermore, we introduce two special characters '$<$', and '$>$' which are used to signify the beginning and the end of a text. Apart from these changes, the model architecure is equivalent to that in the previous section.
+
+\subsection{Training}
+
+\subsection{Sampling}
+Let $G$ be the trained model, $v$ be the vocabulary, and $x$ be a document. It is an approximation such that \[G(x_1,x_2,\dots,x_{t-1}) = \begin{bmatrix}
+p(x_t = v_1| \{x_j\mid j < t\}) \\
+p(x_t = v_2| \{x_j\mid j < t\}) \\
+\vdots
+p(x_t = v_D| \{x_j\mid j < t\})
+\end{bmatrix}\]
+
+Where $x_t$ is the $t^{th}$ part of speech tag in the document $x$. %
+
+%Finally, we will create a generative algorithm to generate texts of different levels of complexity. Our proposed method is to create $3$ LSTM models, one for each complexity level. We will use the sequence of part of speech encoding as described in the previous section, but in this setting we will be learning the probability of the part of speech of the next word given the previous words. Formally, we will be predicting $P(pos^{t+1} \mid pos^{t}, pos^{t-1},\dots, pos^{1})$. Then, to generate a document, we will continually sample from the model using the previously generated samples as the input, until we reach a special terminating character. Finally, we will substitute the part of speech tags with actual words from a specified dictionary. 
+
+
+
+
 \section{Next Steps}
 \begin{enumerate}
     \item \textbf{Hyperparameter Tuning \& Cross Validation} To further tune the hyperparameters of our models, we plan to employ random search with k-fold validation. Random search has a greater chance of exploring the whole parameter space \cite{random}, and will allow us to incorporate the validation set in training. Furthermore, since the score in k-fold validation is computed as an average over the performance on each fold, we are less likely to overfit to any validation set. Hopefully, using these methods, we will further improve the performance of our models.
-    
-    \item \textbf{LSTM (Sequence Model)} One key drawback in our representation of the documents is that most of the sequential information is lost in the feature encoding. However, sequential relationships likely play a key role in determining the complexity of a text. We did not use sequential encodings originally because models such as Logistic Regression, expect fixed length inputs. Because our documents were of different lengths, sequential encodings could not satisfy this requirement without padding, and padding did not seem like a viable option due the variance in document length. 
-
-    To address this problem, we can use a Recurrent Neural Network. The architecture of this neural network allows for arbitrary length inputs and can even learn time dependencies. They have also been successfully applied in NLP in the past. One viable input for this model is to encode each document as a sequence of part of speech tags instead of word embeddings. Our hypothesis is that this will both allow the model to fit the data better, and also generalize to unseen texts. The intuition behind this is that there can be complex and simple text of any topic, and thus a more important factor in determining complexity is the grammatical structure of the sentence.
-
-    \item \textbf{Generative Algorithm}
-    Finally, we will create a generative algorithm to generate texts of different levels of complexity. Our proposed method is to create $3$ LSTM models, one for each complexity level. We will use the sequence of part of speech encoding as described in the previous section, but in this setting we will be learning the probability of the part of speech of the next word given the previous words. Formally, we will be predicting $P(pos^{t+1} \mid pos^{t}, pos^{t-1},\dots, pos^{1})$. Then, to generate a document, we will continually sample from the model using the previously generated samples as the input, until we reach a special terminating character. Finally, we will substitute the part of speech tags with actual words from a specified dictionary. 
 \end{enumerate}
 
 \section{Contributions, Code}

@@ -74,7 +74,4 @@ def ntlk_stuff():
 
     sentence2 = df['text'][5]
 
-
-
-
 ntlk_stuff()

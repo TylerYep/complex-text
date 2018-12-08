@@ -10,7 +10,6 @@ sys.path.append('preprocess')
 import read_data
 import util
 
-
 def preprocess(text):
     text.replace('<', '')
     text.replace('>', '')
@@ -47,7 +46,6 @@ def make_vocab_and_dataset():
     util.save_pkl('generate/weebit_generate.pkl', dataset)
 
 
-
 class DataG(Dataset):
     def __init__(self, level, size=None, pos=True):
         # level \in {2, 3, 4}
@@ -66,7 +64,6 @@ if __name__ == "__main__":
     #make_vocab_and_dataset()
     d = DataG(2, 1)
     word2ind, ind2word = util.load_pkl('generate/vocab_g.pkl')
-    print('hi')
     for x in d:
         print(x)
         print(decode(x, ind2word))

@@ -14,37 +14,38 @@ from torch import nn
 from tqdm import tqdm
 import util
 
-char2ind, ind2char = util.load_pkl('deep_learn/vocab.pkl')
+char2ind, ind2char = util.load_pkl('generate/vocab_g.pkl')
 one_hot = OneHotEncoder(len(char2ind), sparse=False)
+texts = DataG(2)
 
 PS = False
 LR = 0.0001
-N_HIDDEN = 200
-N_LAYERS = 3
-EMBED_DIM = 64
+N_HIDDEN = 100
+N_LAYERS = 1
+EMBED_DIM = 32
 SHOW = 1
+BS = 10
+temp = 0.01
 
 def decode(inds, ind2char):
-    return ''.join([ind2char[i] for i in inds])
-
+    return ' '.join([ind2char[i] for i in inds])
 
 def load_model(fname):
     model = GenerateModel(len(ind2char), N_HIDDEN, N_LAYERS)
-    try:
-        checkpoint = torch.load(fname)
-        model = GenerateModel(**checkpoint['params'])
-        model.load_state_dict(checkpoint['state_dict'])
-        model.epoch = checkpoint['epoch']
-        return model
-    except:
-        print('Starting new model')
-        model = GenerateModel(len(ind2char), N_HIDDEN, N_LAYERS, EMBED_DIM)
-        return model
+    checkpoint = torch.load(fname)
+    model = GenerateModel(**checkpoint['params'])
+    model.load_state_dict(checkpoint['state_dict'])
+    model.epoch = checkpoint['epoch']
+    return model
+    #except:
+        #print('Starting new model')
+        #model = GenerateModel(len(ind2char), N_HIDDEN, N_LAYERS, EMBED_DIM)
+        #return model
 
 
 class Trainer():
     def __init__(self, model, lr=0.001):
-        self.data = DataLoader(lyrics)
+        self.data = DataLoader(texts, 1, collate_fn=lambda x: np.array(x), drop_last=True)
         self.lr = lr
         self.model = model
         self.loss_fn = nn.NLLLoss()
@@ -54,16 +55,18 @@ class Trainer():
         self.model.train()
         for epoch in range(num_epochs):
             losses = []
-            for lyric in self.data:
-                X = lyric[:-1]
-                Y = lyric[1:]
+            for text in tqdm(self.data):
+                text = text[0]
+                X = text[:-1]
+                Y = text[1:]
                 model_in = torch.tensor(X, dtype=torch.long)
                 targets = torch.tensor(Y, dtype=torch.long)
 
                 self.model.zero_grad()
                 hidden = self.model.init_hidden()
+
                 prediction, _ = self.model(model_in, hidden)
-                loss = self.loss_fn(prediction, targets)
+                loss = self.loss_fn(prediction.squeeze(), targets)
 
                 loss.backward()
                 self.optimizer.step()
@@ -84,9 +87,9 @@ class Trainer2(Trainer):
         self.model.train()
         for epoch in range(num_epochs):
             losses = []
-            for lyric in tqdm(self.data):
-                X = lyric[:-1]
-                Y = lyric[1:]
+            for text in tqdm(self.data):
+                X = text[:-1]
+                Y = text[1:]
                 hidden = self.model.init_hidden()
                 start_ind = 0
                 while True:
@@ -118,7 +121,7 @@ class Trainer3(Trainer):
     def __init__(self, model, lr=0.001, seq_len=25, bs=50):
         Trainer.__init__(self, model, lr)
         self.seq_len = seq_len
-        self.data = DataLoader(lyrics, bs, collate_fn=lambda x: np.array(x), drop_last=True)
+        self.data = DataLoader(texts, bs, collate_fn=lambda x: np.array(x), drop_last=True)
         self.bs = bs    
 
 
@@ -148,7 +151,8 @@ class Trainer3(Trainer):
         self.model.train()
         for epoch in range(num_epochs):
             losses = []
-            for batch in tqdm(self.data):
+            for batch in self.data:
+                print(batch)
                 working_bs = self.bs
                 batch_start, seq_start = 0, 0
                 sentences, lens = self.get_array(batch)
@@ -175,10 +179,11 @@ class Trainer3(Trainer):
                     hidden = self.repackage_hidden(hidden)
                     lens -= self.seq_len
 
-            sample(self.model, n=300)
-            self.model.epoch += 1
-            print('Loss after epoch {}: {}'.format(self.model.epoch, np.mean(losses)))
-            self.model.save()
+            if epoch % 25 == 0:
+                sample(self.model, n=300)
+                self.model.epoch += 1
+                print('Loss after epoch {}: {}'.format(self.model.epoch, np.mean(losses)))
+                self.model.save()
 
 
 def sample(model, start='<', n=100):
@@ -191,26 +196,29 @@ def sample(model, start='<', n=100):
         out, h = model(model_in[:-1], h)
 
     model_in = model_in[-1].view(-1)
-    string = start
+    output = []
     for i in range(n):
         out, h = model(model_in, h)
         prob = np.exp(out.data.numpy().flatten())
+        expon = [p**(1/temp) for p in prob]
+        prob = [p/sum(expon) for p in expon]
         ch = np.random.choice(len(ind2char), p=prob)
-        string += ind2char[ch]
+        output.append(ind2char[ch])
         model_in = torch.tensor(ch, dtype=torch.long)
-    print(string)
+    print(' '.join(output))
 
     model.train()
 
 
 if __name__ == "__main__":
-
-
-    fname = 'hidden_dim200_n_layers3_embed_dim64_n_chars78model.pth.tar' 
+    fname = 'hidden_dim100_n_layers5_embed_dim64_n_chars43_level_2model.pth.tar' 
     model = load_model(fname)
-    sample(model, n=500)
+    sample(model)
+
+    #model = GenerateModel(len(ind2char), N_HIDDEN, N_LAYERS)
     #trainer = Trainer2(model, seq_len=40)
-    trainer = Trainer3(model, seq_len=40, bs=150, lr=0.0001)
+    #trainer = Trainer3(model, seq_len=200, bs=10, lr=0.0001)
+    trainer = Trainer(model, lr=0.001)
     trainer.train(200)
 
 

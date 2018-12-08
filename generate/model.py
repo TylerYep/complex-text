@@ -27,15 +27,11 @@ class GenerateModel(nn.Module):
         return (torch.zeros(self.n_layers, batch_size, self.hidden_dim),
                 torch.zeros(self.n_layers, batch_size, self.hidden_dim))
 
-    def forward(self, X, h, bs=1, verbose=0):
-        if verbose > 0: print('Before embedding', X.shape)
+    def forward(self, X, h, bs=1):
         X = self.embedding(X)
         X = X.view(-1, bs, self.embed_dim)
-        if verbose > 0: print('After embedding', X.shape)
         X, hidden = self.lstm(X, h)
-        if verbose > 0: print('After lstm', X.shape)
         X = self.hidden_to_out(X)
-        if verbose > 0: print('After linear', X.shape)
         X = nn.functional.log_softmax(X, dim=2)
         return X, hidden
 

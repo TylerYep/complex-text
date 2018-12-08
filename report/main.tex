@@ -113,14 +113,21 @@ To address this problem, we can use a Recurrent Neural Network. The architecture
 
 \subsection{Model Architecture}
 \begin{enumerate}
-    \item \textbf{Encoding.} As mentioned, the encoding we chose was to represent texts as a sequence of part of speech tags. %TODO vocab size 
-    \item \textbf{Embedding Layer} %TODO Harry
+    \item \textbf{Encoding.} As mentioned, the encoding we chose was to represent texts as a sequence of part of speech tags, However, we chose to replace the \textit{PUNCT} tag with the actual punctuation used in the sentence. We did this as the exact punctuation used is probably useful in determining the complexity of a sentence. For example, if we just used \textit{PUNCT}, commas and periods would be indistinguishable, and the algorithm may not know the difference between a series of simple sentences and compound sentence. The final vocabulary consists of $46$ part of speech tags and and punctuation marks. For the rest of the report let $V$ be the vocabulary where $V_i$ is the $i^{th}$ item in the vocabulary. 
+    \item \textbf{Embedding Layer} The first layer of the LSTM is an embedding layer. This is inspired by NLP methods which typically use word2vec or trainable embedding layers to represent each item of the vocabulary. For our case, the embedding layer takes in a element of the vocabulary and maps it to a $EMBED\_DIM$ dimensional vector, which is trained using the optimization algorithm. 
     \item \textbf{LSTM}
+        The embeddings are then put into a LSTM model. The tunable parameters of this step are
+        \begin{itemize}
+            \item $N\_LAYERS$, the number of LSTM layers
+            \item $HIDDEN\_DIM$, the dimension of each LSTM layer, 
+        \end{itemize}
+
     \item \textbf{Linear}
     \item \textbf{Softmax}
 \end{enumerate}
 
 \subsection{Results}
+% Used Adam algorithm to train
 %TODO tyler: 
 % Hyperparameter tuning
 % Some pretty loss plots and critical comparison with previous models
@@ -133,7 +140,7 @@ TODO include specifics about the implementation?
 The final goal of this project was to experiment with generating texts of different complexity levels. In this project we focus on grammar and sentence/document structure as the primary determinant of complexity. Therefore we employ LSTM models again, but this time for sequence prediction instead of classification. In particular given the sequence of part of speech encodings described in the previous section, the model learns $p(pos^{t+1} \mid pos^{t}, pos^{t-1},\dots, pos^{1})$. We can sample from this probability distribution to generate sequences of part of speech tags.
 
 \paragraph{Encoding}
-In addition to the sequence of part of speech tags, for the generation task, we decided to directly encode the punctuation instead of having them all transformed to the same tag \textit{PUNCT}. Furthermore, we introduce two special characters '$<$', and '$>$' which are used to signify the beginning and the end of a text. Apart from these changes, the model architecure is equivalent to that in the previous section.
+Here we introduce two special characters '$<$', and '$>$' which are used to signify the beginning and the end of a text. Apart from these changes, the model architecure is equivalent to that in the previous section.
 
 \subsection{Training}
 

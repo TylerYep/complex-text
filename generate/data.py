@@ -64,7 +64,8 @@ if __name__ == "__main__":
     #make_vocab_and_dataset()
     d = DataG(2, 1)
     word2ind, ind2word = util.load_pkl('generate/vocab_g.pkl')
-    for x in d:
-        print(x)
-        print(decode(x, ind2word))
+    print(word2ind)
+    #for x in d:
+    #    print(x)
+    #    print(decode(x, ind2word))
 

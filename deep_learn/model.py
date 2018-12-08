@@ -66,7 +66,8 @@ class Model(nn.Module):
         lstm_out, self.hidden = self.lstm(embeds, self.hidden)
         lstm_out, _= torch.nn.utils.rnn.pad_packed_sequence(lstm_out)
 
-        # Average outputs of each time step, and predict
+        # HI TYLER uncomment the follwing 2 lines and comment out the next two
+
         # averaged = lstm_out.sum(0)
         # averaged /= torch.tensor(lengths, dtype=torch.float).view(-1,1)
         r = range(len(lengths))

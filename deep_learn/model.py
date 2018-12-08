@@ -32,7 +32,7 @@ class Model(nn.Module):
         self.output_dim = output_dim
 
         self.word_embeddings = nn.Embedding(self.n_embeds, self.embedding_dim, 0)
-        dp = 0 if self.num_layers == 1 else 0.3
+        dp = 0 if self.num_layers == 1 else 0.5
         self.lstm = nn.LSTM(self.embedding_dim, self.hidden_dim,
                             self.num_layers, dropout=dp)
         self.hidden2tag = nn.Linear(self.hidden_dim, self.output_dim)

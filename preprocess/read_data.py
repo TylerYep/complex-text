@@ -7,6 +7,7 @@ import spacy
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from collections import Counter, defaultdict
+import unidecode
 
 import os, sys
 sys.path.append('preprocess')
@@ -16,8 +17,6 @@ import util
 class DataFeatures:
     def __init__(self, dataset):
         self.raw = load_weebit()
-        # TODO logic for switching datset
-
         self.count_matrix, self.tfidf_matrix = None, None
 
         # self.get_tfidf()   # These two are fast and should just be called everytime
@@ -75,25 +74,21 @@ class DataFeatures:
         self.count_matrix = count.transform(df.text).todense()
         return self.count_matrix
 
-    def get_nlfeatures(self, save_nl=False):
+    def get_nlfeatures(self, save_nl=True):
         '''
         Arguments
         Returns
         Dictionary of feature name to value.
         '''
         # Function to check if the token is a noise or not
-        def isNoise(token, noisy_pos_tags=['PROP'], min_token_length=2):
+        def is_noise(token, noisy_pos_tags=['PROP'], min_token_length=2):
             return token.pos_ in noisy_pos_tags or token.is_stop or len(token.string) <= min_token_length
 
-        def cleanup(token, lower=True):
-            if lower:
-                return token.lower().strip()
-            return token.strip()
+        def cleanup(token):
+            return token.lower().strip()
 
         print('Getting NLP Features...')
         nlp = spacy.load('en')
-        # documents = self.raw['text'].apply(nlp)
-
         num_docs = 0
         feature_matrix = []
         if save_nl: doc_objs = []
@@ -114,10 +109,11 @@ class DataFeatures:
             all_tag_counts = defaultdict(int)
             for w in doc:
                 all_tag_counts[w.pos_] += 1
-            # cleaned_list = [cleanup(word.string) for word in doc if not isNoise(word)]
-            # Counter(cleaned_list).most_common(5)
+                if w.pos_ == 'PUNCT':
+                    all_tag_counts[w] += 1
+            # cleaned_list = [cleanup(word.string) for word in doc if not is_noise(word)]
             feats = []
-            for tag in POS_TAGS:
+            for tag in all_tag_counts:
                 feats.append(all_tag_counts[tag])
             feats.append(len(noun_chunks))          # num_noun_chunks
             feats.append(len(sentences))            # num_sentences
@@ -126,8 +122,6 @@ class DataFeatures:
             if save_nl: doc_objs.append(doc)
 
         if save_nl: util.save_pkl('preprocess/doc_objs.pkl', doc_objs)
-
-
         return np.array(feature_matrix)
 
 
@@ -135,7 +129,6 @@ def prep_weebit():
     data = []
     weebit_dir = 'data/weebit/WeeBit-TextOnly/'
     difficulty_levels = ['WRLevel2', 'WRLevel3', 'WRLevel4']
-
     for difficulty in difficulty_levels:
         path = weebit_dir + difficulty
         texts = os.listdir(path)
@@ -145,8 +138,9 @@ def prep_weebit():
                 this_text = this_text.replace(
                     'All trademarks and logos are property of Weekly Reader Corporation.', '')
                 this_text = ftfy.fix_text(this_text)
-                this_text = this_text.replace('Ò', '\'').replace('Õ', '\'').replace('Ó', '\'')
-                this_text = this_text.replace('Ñ', ' ').replace('Ð', '-').replace('Ô', '\'')
+                this_text = this_text.replace('Ò', '\'').replace('Õ', '\'').replace('Ó', '\'')\
+                                    .replace('Ñ', ' ').replace('Ð', '-').replace('Ô', '\'')
+                this_text = unidecode.unidecode(this_text) # This removes all errors, but messily
                 data.append((this_text, int(difficulty[-1]), t))
 
     df = pd.DataFrame(data)
@@ -160,10 +154,6 @@ def load_weebit():
     return pd.read_csv('data/weebit/weebit.csv')
 
 
-def load_one_stop():
-    # TODO
-    return pd.read_csv('')
-
 def check_non_ascii():
     counter = 0
     wb = load_weebit()
@@ -171,15 +161,12 @@ def check_non_ascii():
     for text in wb.text:
         for w in text.split():
             if not len(w) == len(w.encode()):
-                print(w)
+                print(unidecode.unidecode(w))
                 counter += 1
     print(counter)
 
 
-def prep_onestop():
-    pass
-
-
 if __name__ == "__main__":
-    prep_weebit()
-    check_non_ascii()
+    # prep_weebit()
+    # check_non_ascii()
+    x = DataFeatures('weebit')

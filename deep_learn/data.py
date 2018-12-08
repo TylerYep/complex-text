@@ -1,6 +1,6 @@
 import pandas as pd
 import spacy
-import numpy as np 
+import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
 from tqdm import tqdm
@@ -28,12 +28,12 @@ def make_vocab_and_dataset():
     dataset = []
     vocab = Counter()
     for i, doc in enumerate(doc_objs):
-        x = [w.pos_ if w.pos_ not in  ['PUNCT'] else w.text for w in doc]
+        x = [w.pos_ if w.pos_ not in ['PUNCT'] else w.text for w in doc]
         dataset.append(x)
         vocab += Counter(x)
 
     words = ['UNK'] + [w for w, c in vocab.items() if c > 5]
-    
+
     word2ind = {w : i for i, w in enumerate(words)}
     ind2word = {i : w for i, w in enumerate(words)}
 
@@ -82,10 +82,10 @@ class Data(Dataset):
 
 if __name__ == "__main__":
 
-    #make_vocab_and_dataset()
+    # make_vocab_and_dataset()
     make_vocab_real_words()
-    vc = util.load_pkl('deep_learn/vocab2.pkl')
-    print(vc)
-    x = Data(0)
-    print(x[0])
-        
+    # vc = util.load_pkl('deep_learn/vocab2.pkl')
+    # print(vc)
+    # x = Data(0)
+    # print(x[0])
+

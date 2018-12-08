@@ -17,7 +17,8 @@ from torch import nn
 from tqdm import tqdm
 import util
 from model import Model
-
+import random
+import re
 
 # HI comment one out 2 is the one using real words
 #word2ind, ind2word = util.load_pkl('deep_learn/vocab.pkl')
@@ -25,8 +26,8 @@ word2ind, ind2word = util.load_pkl('deep_learn/vocab2.pkl')
 
 def model_from_fname(fname, ModelClass):
     """
-    Loads a model from the file name. In particular, this 
-    function extracts the parameter values of the model from 
+    Loads a model from the file name. In particular, this
+    function extracts the parameter values of the model from
     the filename, and initializes the model with these
     parameters.
 
@@ -40,8 +41,8 @@ def model_from_fname(fname, ModelClass):
         (float):    Best error on the development/validation set
     """
     params = fname_to_params(fname)
-    model = ModelClass(*params, n_embeds=22569)
-    epoch, best_dev = load_model(model, None, fname, 128)
+    model = ModelClass(*params, n_embeds=4563)
+    epoch, best_dev = load_model(model, None, fname, 32)
     return model, epoch, best_dev
 
 def fname_to_params(fname):
@@ -49,11 +50,11 @@ def fname_to_params(fname):
     Extract model parameters from a filename
 
     Arguments
-        fname (str): File name of a LSTM model 
+        fname (str): File name of a LSTM model
 
     Returns
         (list): List of parameter values in this
-                order: n_layers, embedding_dim, 
+                order: n_layers, embedding_dim,
                 hidden_dim, batch_size
     """
     nums = re.findall(r'\d+', fname)
@@ -63,7 +64,7 @@ def fname_to_params(fname):
 def load_model(model, optimizer, fname, bs):
     """
     Loads the weights of a model and parameters
-    of the optimizer. The model and optimizer 
+    of the optimizer. The model and optimizer
     object are changed in place and therefore
     not returned.
 
@@ -174,7 +175,7 @@ def prepare_texts(sentences, labels=None, bs=1, return_sorts=False):
 
     return to_return
 
-def train(model, train_loader, dev_loader, fname=None, num_epochs=1000):
+def train(model, train_loader, dev_loader, fname=None, num_epochs=1000, learning_rate=0.001):
     """
     Trains model with the data in train_loader, saving checkpoints after
     the epoch in which the best dev-accuracy is obtained.
@@ -192,7 +193,7 @@ def train(model, train_loader, dev_loader, fname=None, num_epochs=1000):
     """
     model.train()
     loss_function = nn.NLLLoss()
-    optimizer = Adam(model.parameters(), lr=LR)
+    optimizer = Adam(model.parameters(), lr=learning_rate)
     epoch, best_dev = load_model(model, optimizer, fname, model.batch_size) if fname else 0, 0
     for epoch in range(epoch, epoch + num_epochs):
         losses = []
@@ -217,8 +218,8 @@ def train(model, train_loader, dev_loader, fname=None, num_epochs=1000):
 
     return model
 
-def _experiments(num_layers=[1, 2, 3], batch_size=[128, 64],
-                embedding_dim=[32, 64], hidden_dim=[64, 128, 256]):
+def _experiments(num_layers=[3], batch_size=[32],
+                embedding_dim=[16], hidden_dim=[32], learning_rate=[0.001]):
     """
     Runs some experiments (used for model selection)
     and prints some results.
@@ -231,20 +232,20 @@ def _experiments(num_layers=[1, 2, 3], batch_size=[128, 64],
 
     Returns: None
     """
-
     results = [['num layers','batch size', 'embedding dim', 'hidden dim', 'best dev']]
-    for b, n, e, h in itertools.product(batch_size, num_layers, embedding_dim, hidden_dim):
+    for b, n, e, h, lr in random.sample(list(itertools.product(batch_size, num_layers, embedding_dim, hidden_dim, learning_rate)), 1):
         print('num layers', n)
         print('batch size', b)
         print('embedding dim', e)
         print('hidden dim', h)
+        print('learning rate', lr)
         print()
 
         model = Model(n, e, h, b, N_EMBS, OUTPUT_DIM)
         train_loader = DataLoader(Data(0), batch_size=b, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
         dev_loader = DataLoader(Data(1), batch_size=b, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
-        train(model, train_loader, dev_loader, num_epochs=10)
-        results.append([n, b, e, h, model.best_dev])
+        train(model, train_loader, dev_loader, num_epochs=50, learning_rate=lr)
+        results.append([n, b, e, h, lr, model.best_dev])
     print(results)
 
 def collate(batch):
@@ -253,8 +254,16 @@ def collate(batch):
     return X, Y
 
 if __name__ == "__main__":
-    #_experiments()
-    model = Model(NUM_LAYERS, EMBEDDING_DIM, HIDDEN_DIM, BATCH_SIZE, N_EMBS, OUTPUT_DIM)
-    train_loader = DataLoader(Data(0, pos=False), batch_size=BATCH_SIZE, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
-    dev_loader = DataLoader(Data(1, pos=False), batch_size=BATCH_SIZE, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
-    train(model, train_loader, dev_loader)
+    _experiments()
+
+    # fname = 'n1em64hid128bs32best.pth.tar'
+    # b = int(fname[fname.index('bs')+2: fname.index('best')])
+    # model, epoch, best_dev = model_from_fname(fname, Model)
+    # train_loader = DataLoader(Data(0), batch_size=b, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
+    # dev_loader = DataLoader(Data(1), batch_size=b, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
+    # train(model, train_loader, dev_loader, num_epochs=10, learning_rate=0.001)
+
+    # model = Model(NUM_LAYERS, EMBEDDING_DIM, HIDDEN_DIM, BATCH_SIZE, N_EMBS, OUTPUT_DIM)
+    # train_loader = DataLoader(Data(0, pos=False), batch_size=BATCH_SIZE, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
+    # dev_loader = DataLoader(Data(1, pos=False), batch_size=BATCH_SIZE, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
+    # train(model, train_loader, dev_loader)

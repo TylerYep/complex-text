@@ -2,12 +2,14 @@ import pandas as pd
 import numpy as np
 import sklearn
 import pickle
-import spacy
+#import spacy
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.model_selection import RandomizedSearchCV
 
 import os, sys
 import util
+#from util import ASC
+
 sys.path.append('preprocess')
 
 

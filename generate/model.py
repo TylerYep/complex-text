@@ -4,15 +4,16 @@ import torch
 from torch import nn
 
 class GenerateModel(nn.Module):
-    def __init__(self, n_chars, hidden_dim=30, n_layers=2, embed_dim=64):
+    def __init__(self, n_chars, hidden_dim=30, n_layers=2, embed_dim=64, lvl=2):
         super(GenerateModel, self).__init__()
         self.hidden_dim = hidden_dim
         self.n_layers = n_layers
         self.n_chars = n_chars
         self.embed_dim = embed_dim
-        self.param_names = ['hidden_dim', 'n_layers', 'embed_dim', 'n_chars']
-        self.param_vals = [hidden_dim, n_layers, embed_dim, n_chars]
+        self.param_names = ['lvl', 'hidden_dim', 'n_layers', 'embed_dim', 'n_chars']
+        self.param_vals = [lvl, hidden_dim, n_layers, embed_dim, n_chars]
         self.params = dict(zip(self.param_names, self.param_vals))
+
         self.fname = '_'.join([n + str(p) for n, p in self.params.items()]) + 'model.pth.tar'
 
         self.best_dev = 0

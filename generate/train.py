@@ -5,8 +5,6 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import OneHotEncoder
 from data import DataG
 import sys
-sys.path.insert(0,"/home/harry/Dropbox/Random_Code/harrytools")
-import harrytools
 import torch 
 from torch.utils.data import DataLoader
 from torch.optim import Adam
@@ -16,23 +14,29 @@ import util
 
 char2ind, ind2char = util.load_pkl('generate/vocab_g.pkl')
 one_hot = OneHotEncoder(len(char2ind), sparse=False)
-texts = DataG(2)
 
+LEVEL = 4
 N_HIDDEN = 100
 N_LAYERS = 3
 EMBED_DIM = 64
 SHOW = 1
-temp = 0.3
+TEMP = 0.5
+texts = DataG(LEVEL)
+
+np.random.seed()
 
 def decode(inds, ind2char):
     return ' '.join([ind2char[i] for i in inds])
 
-def load_model(fname):
-    model = GenerateModel(len(ind2char), N_HIDDEN, N_LAYERS)
+def load_model(fname, safe=True):
+    model = GenerateModel(len(ind2char), N_HIDDEN, N_LAYERS, EMBED_DIM, LEVEL)
+    if safe and int(fname[3]) != LEVEL:
+        raise Exception('check the level')
     checkpoint = torch.load(fname)
     model = GenerateModel(**checkpoint['params'])
     model.load_state_dict(checkpoint['state_dict'])
     model.epoch = checkpoint['epoch']
+    model.fname = fname
     return model
     #except:
         #print('Starting new model')
@@ -42,7 +46,7 @@ def load_model(fname):
 
 class Trainer():
     def __init__(self, model, lr=0.001):
-        self.data = DataLoader(texts, 1, collate_fn=lambda x: np.array(x), drop_last=True)
+        self.data = DataLoader(texts, 1, collate_fn=lambda x: np.array(x), drop_last=True, shuffle=True)
         self.lr = lr
         self.model = model
         self.loss_fn = nn.NLLLoss()
@@ -75,7 +79,7 @@ class Trainer():
             self.model.save()
 
 
-def sample(model, start='<', n=100):
+def sample(model, start='<', n=100, temp=0.5):
     model.eval()
     encode = [char2ind[s] for s in start]
     model_in = torch.tensor(encode, dtype=torch.long).view(-1)
@@ -100,14 +104,15 @@ def sample(model, start='<', n=100):
 
 
 if __name__ == "__main__":
-    #fname = 'hidden_dim100_n_layers5_embed_dim64_n_chars43_level_2model.pth.tar' 
-    #model = load_model(fname)
-    #sample(model)
+    fname = 'lvl4_hidden_dim100_n_layers3_embed_dim64_n_chars43model.pth.tar' 
+    model = load_model(fname)
 
-    model = GenerateModel(len(ind2char), N_HIDDEN, N_LAYERS)
+    #sample(model, temp=TEMP)
+    #model = GenerateModel(len(ind2char), N_HIDDEN, N_LAYERS, EMBED_DIM, LEVEL)
+    # DID YOU CHANGE THE LEVEL?
+
     #trainer = Trainer2(model, seq_len=40)
     #trainer = Trainer3(model, seq_len=200, bs=10, lr=0.0001)
-    trainer = Trainer(model, lr=0.001)
-    trainer.train(200)
-
+    trainer = Trainer(model, lr=0.0001)
+    trainer.train(300)
 

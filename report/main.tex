@@ -13,7 +13,7 @@
 \setlength\parindent{0pt}
 
 \begin{document}
-\title{CS 229 Project Proposal - Text Complexity, NLP}
+\title{CS 229 Project Milestone: Text Complexity (NLP)}
 \author{Harry Sha (harry2), Tyler Yep (tyep)}
 \maketitle
 
@@ -118,12 +118,15 @@ To address this problem, we can use a Recurrent Neural Network. The architecture
     \item \textbf{LSTM}
         The embeddings are then put into a LSTM model. The tunable parameters of this step are
         \begin{itemize}
-            \item $N\_LAYERS$, the number of LSTM layers
-            \item $HIDDEN\_DIM$, the dimension of each LSTM layer, 
+            \item \textit{N\_LAYERS}, the number of LSTM layers.
+            \item \textit{HIDDEN\_DIM}, the dimension of each LSTM layer.
+            \item \textit{DROPOUT}, the percentage of neurons that are deactivated in each LSTM layer.
         \end{itemize}
-
+        The LSTM has an output for each value in the sequence. Thus to get a fixed length vector for input to the next linear layer, we experimented with either using the output at the final value in the sequence, and using the mean output across all values in the sequence. 
     \item \textbf{Linear}
+        The output of the LSTM layer is then fed into a linear layer $Wx + b$. The purpose of this layer is mainly to transform the dimension of output of the LSTM layer to \textit{HIDDEN\_DIM} to $3$ as we are trying to predict 3 levels of difficulty.
     \item \textbf{Softmax}
+        Finally, the outputs of the linear layer are fed into a softmax layer, which normalizes the outputs so that they can be interpreted as the probabilities that the text was of each of the levels. 
 \end{enumerate}
 
 \subsection{Results}
@@ -139,27 +142,43 @@ TODO include specifics about the implementation?
 \section{Text Generation}
 The final goal of this project was to experiment with generating texts of different complexity levels. In this project we focus on grammar and sentence/document structure as the primary determinant of complexity. Therefore we employ LSTM models again, but this time for sequence prediction instead of classification. In particular given the sequence of part of speech encodings described in the previous section, the model learns $p(pos^{t+1} \mid pos^{t}, pos^{t-1},\dots, pos^{1})$. We can sample from this probability distribution to generate sequences of part of speech tags.
 
-\paragraph{Encoding}
-Here we introduce two special characters '$<$', and '$>$' which are used to signify the beginning and the end of a text. Apart from these changes, the model architecure is equivalent to that in the previous section.
+In the encoding we introduce two special characters '$<$', and '$>$' which are used to signify the beginning and the end of a text. These are used so that the model learns when to end a text, which is useful for sampling. Apart from these changes, the model architecure is equivalent to that in the previous section.
+
+%TODO N-grams infeasible, why?
 
 \subsection{Training}
 
 \subsection{Sampling}
-Let $G$ be the trained model, $v$ be the vocabulary, and $x$ be a document. It is an approximation such that \[G(x_1,x_2,\dots,x_{t-1}) = \begin{bmatrix}
-p(x_t = v_1| \{x_j\mid j < t\}) \\
-p(x_t = v_2| \{x_j\mid j < t\}) \\
-\vdots
-p(x_t = v_D| \{x_j\mid j < t\})
+Let $G$ be the trained model, $V$ be the vocabulary, $D = |V|$, and $x$ be a document. It is an approximation such that \[G(x_1,x_2,\dots,x_{t-1}) \approx \begin{bmatrix}
+p(x_t = V_1| \{x_j\mid j < t\}) \\
+p(x_t = V_2| \{x_j\mid j < t\}) \\
+\vdots\\
+p(x_t = V_D| \{x_j\mid j < t\})
 \end{bmatrix}\]
+Where $x_t$ is the $t^{th}$ part of speech tag in the document $x$. To sample a sequence of part of speech tags we used the following algorithm:
+\begin{verbatim}
+def sample(temp):
+    seq = []
+    x_t = `<'
+    while True:
+        probabilities = G(seq)
+        probs = normalize([p**(1/temp) for p in prob])
+        next = choose(prob)
+        seq.append(V[next])
+        if next == `>': return seq
+\end{verbatim}
+Here the parameter \textit{temp}, inspired by language and music generation models, controls the rigidness of the sampling. In particular, low values for temperature result in more grammatically correct sentences, and higher values encourage more diverse sentence structures. \textit{normalize} is a function that normalizes a vector so that it sums to 1, and \textit{choose(prob)} is a function that samples from a multinomial distribution with parameter \textit{prob}. 
 
-Where $x_t$ is the $t^{th}$ part of speech tag in the document $x$. %
+TODO substitution part (optional?). 
 
-%Finally, we will create a generative algorithm to generate texts of different levels of complexity. Our proposed method is to create $3$ LSTM models, one for each complexity level. We will use the sequence of part of speech encoding as described in the previous section, but in this setting we will be learning the probability of the part of speech of the next word given the previous words. Formally, we will be predicting $P(pos^{t+1} \mid pos^{t}, pos^{t-1},\dots, pos^{1})$. Then, to generate a document, we will continually sample from the model using the previously generated samples as the input, until we reach a special terminating character. Finally, we will substitute the part of speech tags with actual words from a specified dictionary. 
+\section{Learning}
+TODO training results and some example sentences from each difficulty level.
 
 
+\section{Conclusion}
+TODO
 
 
-\section{Next Steps}
 \begin{enumerate}
     \item \textbf{Hyperparameter Tuning \& Cross Validation} To further tune the hyperparameters of our models, we plan to employ random search with k-fold validation. Random search has a greater chance of exploring the whole parameter space \cite{random}, and will allow us to incorporate the validation set in training. Furthermore, since the score in k-fold validation is computed as an average over the performance on each fold, we are less likely to overfit to any validation set. Hopefully, using these methods, we will further improve the performance of our models.
 \end{enumerate}

@@ -31,6 +31,7 @@ def make_vocab_and_dataset():
     vocab = Counter()
 
     for i, doc in enumerate(doc_objs):
+        doc = doc[:-1]
         x = ['<'] + [w.pos_ if w.pos_ not in  ['PUNCT'] else w.text for w in doc] + ['>']
         dataset.append(x)
         vocab += Counter(x)
@@ -51,6 +52,7 @@ class DataG(Dataset):
         # level \in {2, 3, 4}
         if pos: self.texts = util.load_pkl('generate/weebit_generate.pkl')
         self.texts = [x for x in self.texts if x[1] == level]
+        self.texts = [x for x in self.texts if len(x[0]) > 2]
         if size is not None:
             self.texts = self.texts[:size]
 
@@ -62,10 +64,10 @@ class DataG(Dataset):
 
 if __name__ == "__main__":
     #make_vocab_and_dataset()
-    d = DataG(2, 1)
-    word2ind, ind2word = util.load_pkl('generate/vocab_g.pkl')
+    #d = DataG(2, 1)
+    #word2ind, ind2word = util.load_pkl('generate/vocab_g.pkl')
     print(word2ind)
-    #for x in d:
-    #    print(x)
-    #    print(decode(x, ind2word))
+    for x in d:
+        print(x)
+        print(decode(x, ind2word))
 

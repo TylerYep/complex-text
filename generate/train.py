@@ -5,8 +5,6 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import OneHotEncoder
 from data import DataG
 import sys
-sys.path.insert(0,"/home/harry/Dropbox/Random_Code/harrytools")
-import harrytools
 import torch 
 from torch.utils.data import DataLoader
 from torch.optim import Adam
@@ -22,7 +20,7 @@ N_HIDDEN = 100
 N_LAYERS = 3
 EMBED_DIM = 64
 SHOW = 1
-temp = 0.5
+TEMP = 0.5
 texts = DataG(LEVEL)
 
 np.random.seed()
@@ -30,9 +28,9 @@ np.random.seed()
 def decode(inds, ind2char):
     return ' '.join([ind2char[i] for i in inds])
 
-def load_model(fname):
+def load_model(fname, safe=True):
     model = GenerateModel(len(ind2char), N_HIDDEN, N_LAYERS, EMBED_DIM, LEVEL)
-    if int(fname[3]) != LEVEL:
+    if safe and int(fname[3]) != LEVEL:
         raise Exception('check the level')
     checkpoint = torch.load(fname)
     model = GenerateModel(**checkpoint['params'])
@@ -81,7 +79,7 @@ class Trainer():
             self.model.save()
 
 
-def sample(model, start='<', n=100):
+def sample(model, start='<', n=100, temp=0.5):
     model.eval()
     encode = [char2ind[s] for s in start]
     model_in = torch.tensor(encode, dtype=torch.long).view(-1)
@@ -108,7 +106,8 @@ def sample(model, start='<', n=100):
 if __name__ == "__main__":
     fname = 'lvl4_hidden_dim100_n_layers3_embed_dim64_n_chars43model.pth.tar' 
     model = load_model(fname)
-    #sample(model)
+
+    #sample(model, temp=TEMP)
     #model = GenerateModel(len(ind2char), N_HIDDEN, N_LAYERS, EMBED_DIM, LEVEL)
     # DID YOU CHANGE THE LEVEL?
 

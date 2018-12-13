@@ -148,7 +148,7 @@ The final goal of this project was to experiment with generating texts of differ
 
 In the encoding we introduce two special characters '$<$', and '$>$' which are used to signify the beginning and the end of a text. These are used so that the model learns when to end a text, which is useful for sampling. Apart from these changes, the model architecure is equivalent to that in the previous section.
 
-Note that we chose to use LSTM models instead of n-grams because long-range dependencies (longer than $n$) are difficult to learn. Furthermore, complexity of $n$-grams is of the scale $|V|^n$. In this case our vocabulary had size $43$. Therefore for $n=4$ we would have over 3 million possible sequences to store. 
+Note that we chose to use LSTM models instead of n-grams because long-range dependencies (longer than $n$) are difficult to learn. Furthermore, complexity of $n$-grams is of the scale $|V|^n$. In this case our vocabulary had size $43$. Therefore for $n=4$ we would already have over 3 million possible sequences to store. 
 
 \subsection{Training}
 The hyperparameters we selected for the generation model were \textit{N\_HIDDEN} = 100, \textit{N\_LAYERS} = 3, \textit{EMBED\_DIM} = 64, \textit{LR} = 0.0001. We found that this model was able to adequately learn in the different difficulty levels without being over complex (and therefore taking very long to train), the training loss curves are shown in Figure \ref{gtrain}. We think that the level 3 and 4 loss curves acheive higher loss because there are more level 3 and level 4 training examples, and the more varied sentence structure of the higher levels makes it a harder distribution to learn.
@@ -182,20 +182,18 @@ def sample(temp):
 \end{verbatim}
 Here the parameter \textit{temp}, inspired by language and music generation models, controls the rigidness of the sampling. In particular, low values for temperature result in more grammatically correct sentences, and higher values encourage more diverse sentence structures. \textit{normalize} is a function that normalizes a vector so that it sums to 1, and \textit{choose(prob)} is a function that samples from a multinomial distribution with parameter \textit{prob}. 
 
-TODO substitution part (optional?). 
+TODO substitution part?? 
 
-\section{Examples}
-TODO training results and some example sentences from each difficulty level.
-
-
-
+\subsection{Examples}
+TODO
 
 \section{Conclusion}
 TODO
 
+\newpage
+
 \section{Contributions, Code} 
-Harry - Word count, Tf-Idf feature extraction, exploration of natural language features, experiments with Logistic Regression, SVM, Naive Bayes, organizational code. Implementation of LSTM models, and sampling method. Training of generation model. 
-\\ Tyler - Natural language feature extraction, AdaBoost, Naive Bayes, baseline results \\ Code can be found at: https://github.com/TylerYep/complex-text. TODO
+Harry - Word count, Tf-Idf feature extraction, exploration of natural language features, experiments with Logistic Regression, SVM, Naive Bayes, organizational code. Implementation of LSTM models, and sampling method. Training of generation model.  \\ Tyler - Natural language feature extraction, AdaBoost, Naive Bayes, baseline results \\ Code can be found at: https://github.com/TylerYep/complex-text. TODO
 
 %\section{Data and Resources}
 %\begin{enumerate}

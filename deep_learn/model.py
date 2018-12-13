@@ -1,5 +1,4 @@
 import numpy as np
-# import matplotlib.pyplot as plt
 import torch
 from torch import nn
 import torch.nn.functional as F
@@ -21,14 +20,14 @@ class Model(nn.Module):
         output_dim (int):   Number of classes to predict
     """
     def __init__(self, num_layers, embedding_dim, hidden_dim,
-                batch_size, n_embeds=20354, output_dim=3):
+                batch_size, n_embeds=64, output_dim=3):
 
         super(Model, self).__init__()
         self.num_layers = num_layers
         self.embedding_dim = embedding_dim
         self.hidden_dim = hidden_dim
-        self.batch_size = batch_size # Can change at any time
-        self.n_embeds = n_embeds # Size of vocab
+        self.batch_size = batch_size 
+        self.n_embeds = n_embeds
         self.output_dim = output_dim
 
         self.word_embeddings = nn.Embedding(self.n_embeds, self.embedding_dim, 0)

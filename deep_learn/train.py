@@ -24,38 +24,12 @@ from model import Model
 word2ind, ind2word = util.load_pkl('deep_learn/vocab2.pkl')
 
 def model_from_fname(fname, ModelClass):
-    """
-    Loads a model from the file name. In particular, this 
-    function extracts the parameter values of the model from 
-    the filename, and initializes the model with these
-    parameters.
-
-    Arguments
-        fname (string): Filename to load
-        ModelClass (class): Python class of the model i.e. Tagger
-
-    Returns
-        (ModelClass):   Model that was loaded
-        (int):  Epoch at time of saving
-        (float):    Best error on the development/validation set
-    """
     params = fname_to_params(fname)
     model = ModelClass(*params, n_embeds=22569)
     epoch, best_dev = load_model(model, None, fname, 128)
     return model, epoch, best_dev
 
 def fname_to_params(fname):
-    """
-    Extract model parameters from a filename
-
-    Arguments
-        fname (str): File name of a LSTM model 
-
-    Returns
-        (list): List of parameter values in this
-                order: n_layers, embedding_dim, 
-                hidden_dim, batch_size
-    """
     nums = re.findall(r'\d+', fname)
     return [int(x) for x in nums]
 

@@ -1,8 +1,6 @@
 import pandas as pd
 from model import GenerateModel
 import numpy as np 
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import OneHotEncoder
 from data import DataG
 import sys
 import torch 
@@ -13,7 +11,6 @@ from tqdm import tqdm
 import util
 
 char2ind, ind2char = util.load_pkl('generate/vocab_g.pkl')
-one_hot = OneHotEncoder(len(char2ind), sparse=False)
 
 LEVEL = 4
 N_HIDDEN = 100
@@ -38,11 +35,6 @@ def load_model(fname, safe=True):
     model.epoch = checkpoint['epoch']
     model.fname = fname
     return model
-    #except:
-        #print('Starting new model')
-        #model = GenerateModel(len(ind2char), N_HIDDEN, N_LAYERS, EMBED_DIM)
-        #return model
-
 
 class Trainer():
     def __init__(self, model, lr=0.001):

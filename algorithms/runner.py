@@ -70,11 +70,13 @@ def bit_twiddle_params(a, data, features):
 #         "Decision_Tree", "Random_Forest", "Neural_Net", "AdaBoost",
 #         "Naive_Bayes", "Logistic_Regression", 'Dummy']
 if __name__ == "__main__":
-    a = algs.load_alg('AdaBoost')
     data = util.load_pkl(wb_path)
-    bit_twiddle_params(a, data, ['word count', 'nl'])
-    #param_dist = {'penalty':['l1', 'l2'], 'C':[10**i for i in range(-5, 5)]}
-    #a.search(data, param_dist, ['word count', 'nl'], {'min_df':5, 'max_df':0.8}, {})
-    #a.run(data, ['nl'])
-    get_results(a, data,  [['word count','nl']],lr_opts, [{'min_df':5, 'max_df':0.8}], [{}])
-    a.to_csv()
+    a= algs.load_alg('Logistic_Regression')
+    a.run(data, ['word count', 'nl'],{'penalty': 'l1', 'C': 0.1},{'min_df': 5, 'max_df': 0.8})
+
+    #bit_twiddle_params(a, data, ['word count', 'nl'])
+    ##param_dist = {'penalty':['l1', 'l2'], 'C':[10**i for i in range(-5, 5)]}
+    ##a.search(data, param_dist, ['word count', 'nl'], {'min_df':5, 'max_df':0.8}, {})
+    ##a.run(data, ['nl'])
+    #get_results(a, data,  [['word count','nl']],lr_opts, [{'min_df':5, 'max_df':0.8}], [{}])
+    #a.to_csv()

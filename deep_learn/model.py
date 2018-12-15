@@ -14,7 +14,7 @@ class Model(nn.Module):
 
     Parameters
         num_layers (int):   Number of LSTM Layers
-        embedding_dim (int) Dimension of the embedding
+        embedding_dim (int): Dimension of the embedding
         hidden_dim (int): Dimmension of the LSTM hidden layer
         batch_size (int): Batch size to process
         n_embeds (int): Size of the vocabulary
@@ -66,12 +66,10 @@ class Model(nn.Module):
         lstm_out, self.hidden = self.lstm(embeds, self.hidden)
         lstm_out, _= torch.nn.utils.rnn.pad_packed_sequence(lstm_out)
 
-        # HI TYLER uncomment the follwing 2 lines and comment out the next two
-
-        # averaged = lstm_out.sum(0)
-        # averaged /= torch.tensor(lengths, dtype=torch.float).view(-1,1)
-        r = range(len(lengths))
-        averaged = lstm_out[lengths-1, r, :]
+        averaged = lstm_out.sum(0)
+        averaged /= torch.tensor(lengths, dtype=torch.float).view(-1,1)
+        # r = range(len(lengths))
+        # averaged = lstm_out[lengths-1, r, :]
 
         tag_space = self.hidden2tag(averaged)
         tag_scores = F.log_softmax(tag_space, dim=1)
@@ -124,5 +122,5 @@ class Model(nn.Module):
         activation = self.forward(model_in, lens).data.numpy()
         preds = activation.argmax(1)[inverse_sort] # Need to inverse sort b/c I sorted during prepare
 
-        labels = np.array(['is_job_desc', 'is_resp', 'is_exp_qual', 'is_company', 'is_other'])
+        labels = np.array([2,3,4])
         return labels[preds]

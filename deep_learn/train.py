@@ -24,7 +24,7 @@ import re
 #word2ind, ind2word = util.load_pkl('deep_learn/vocab.pkl')
 word2ind, ind2word = util.load_pkl('deep_learn/vocab2.pkl')
 
-def model_from_fname(fname, ModelClass):
+def model_from_fname(fname, ModelClass, n_embeds=4563, bs=32):
     """
     Loads a model from the file name. In particular, this
     function extracts the parameter values of the model from
@@ -41,8 +41,8 @@ def model_from_fname(fname, ModelClass):
         (float):    Best error on the development/validation set
     """
     params = fname_to_params(fname)
-    model = ModelClass(*params, n_embeds=4563)
-    epoch, best_dev = load_model(model, None, fname, 32)
+    model = ModelClass(*params, n_embeds)
+    epoch, best_dev = load_model(model, None, fname, bs)
     return model, epoch, best_dev
 
 def fname_to_params(fname):
@@ -199,7 +199,7 @@ def train(model, train_loader, dev_loader, fname=None, num_epochs=1000, learning
         losses = []
         for sentence, label in tqdm(train_loader):
             #print(sentence)
-            sentence, lens, label= prepare_texts(sentence, label, model.batch_size)
+            sentence, lens, label = prepare_texts(sentence, label, model.batch_size)
             model.zero_grad()
             model.hidden = model.init_hidden()
             tag_scores = model(sentence, lens)
@@ -218,8 +218,8 @@ def train(model, train_loader, dev_loader, fname=None, num_epochs=1000, learning
 
     return model
 
-def _experiments(num_layers=[3], batch_size=[32],
-                embedding_dim=[16], hidden_dim=[32], learning_rate=[0.001]):
+def _experiments(num_layers=[1, 3], batch_size=[32],
+                embedding_dim=[16], hidden_dim=[64], learning_rate=[0.1]):
     """
     Runs some experiments (used for model selection)
     and prints some results.
@@ -233,7 +233,7 @@ def _experiments(num_layers=[3], batch_size=[32],
     Returns: None
     """
     results = [['num layers','batch size', 'embedding dim', 'hidden dim', 'best dev']]
-    for b, n, e, h, lr in random.sample(list(itertools.product(batch_size, num_layers, embedding_dim, hidden_dim, learning_rate)), 1):
+    for b, n, e, h, lr in random.sample(list(itertools.product(batch_size, num_layers, embedding_dim, hidden_dim, learning_rate)), 2):
         print('num layers', n)
         print('batch size', b)
         print('embedding dim', e)
@@ -244,7 +244,7 @@ def _experiments(num_layers=[3], batch_size=[32],
         model = Model(n, e, h, b, N_EMBS, OUTPUT_DIM)
         train_loader = DataLoader(Data(0), batch_size=b, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
         dev_loader = DataLoader(Data(1), batch_size=b, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
-        train(model, train_loader, dev_loader, num_epochs=50, learning_rate=lr)
+        train(model, train_loader, dev_loader, num_epochs=30, learning_rate=lr)
         results.append([n, b, e, h, lr, model.best_dev])
     print(results)
 
@@ -256,12 +256,12 @@ def collate(batch):
 if __name__ == "__main__":
     _experiments()
 
-    # fname = 'n1em64hid128bs32best.pth.tar'
+    # fname = 'n1em64hid32bs32best.pth.tar'
     # b = int(fname[fname.index('bs')+2: fname.index('best')])
-    # model, epoch, best_dev = model_from_fname(fname, Model)
+    # model, epoch, best_dev = model_from_fname(fname, Model, bs=b)
     # train_loader = DataLoader(Data(0), batch_size=b, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
     # dev_loader = DataLoader(Data(1), batch_size=b, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)
-    # train(model, train_loader, dev_loader, num_epochs=10, learning_rate=0.001)
+    # train(model, train_loader, dev_loader, num_epochs=10, learning_rate=0.01)
 
     # model = Model(NUM_LAYERS, EMBEDDING_DIM, HIDDEN_DIM, BATCH_SIZE, N_EMBS, OUTPUT_DIM)
     # train_loader = DataLoader(Data(0, pos=False), batch_size=BATCH_SIZE, shuffle=True, num_workers=0, drop_last=True, collate_fn=collate)

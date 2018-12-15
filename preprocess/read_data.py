@@ -15,13 +15,21 @@ sys.path.append('algorithms')
 import util
 
 class DataFeatures:
-    def __init__(self, dataset):
-        self.raw = load_weebit()
+    def __init__(self, dataset, train_data=None):
+        self.dataset = dataset
+        self.extra = None
+        if dataset == 'weebit_generate':
+            self.raw = load_weebit_generate()
+            self.extra = train_data.wc.get_feature_names()
+        else:
+            self.raw = load_weebit()
+            
+        print(self.raw.shape)
         self.count_matrix, self.tfidf_matrix = None, None
 
-        # self.get_tfidf()   # These two are fast and should just be called everytime
-        # self.get_wc()      # with different options.
-        self.nl_matrix = self.get_nlfeatures()
+        self.get_tfidf()   # These two are fast and should just be called everytime
+        self.get_wc()      # with different options.
+        self.get_nlfeatures()
 
         self.fname = 'preprocess/' + dataset + '_features.pkl'
         self.get_indices()
@@ -68,13 +76,13 @@ class DataFeatures:
         '''
         df = self.raw
         train = df[df.split == 0]
-        count = CountVectorizer(**count_params)
+        count = CountVectorizer(**count_params, vocabulary=self.extra)
         count.fit(train.text)
         self.wc = count
         self.count_matrix = count.transform(df.text).todense()
         return self.count_matrix
 
-    def get_nlfeatures(self, save_nl=True):
+    def get_nlfeatures(self, save_nl=False):
         '''
         Arguments
         Returns
@@ -89,9 +97,20 @@ class DataFeatures:
 
         print('Getting NLP Features...')
         nlp = spacy.load('en')
-        num_docs = 0
         feature_matrix = []
-        if save_nl: doc_objs = []
+
+        # for text in self.raw.text:
+        #     feats = []
+        #     doc = nlp(text)
+        #     sentences = list(doc.sents)
+        #     avg_sent_length = sum([len(sent) for sent in sentences]) / len(sentences)
+        #     feats.append(avg_sent_length)
+        #     feature_matrix.append(feats)
+        #
+        # self.nl_matrix = np.array(feature_matrix)
+
+        num_docs = 0
+        doc_objs = []
 
         for text in self.raw.text:
             doc = nlp(text)
@@ -113,7 +132,7 @@ class DataFeatures:
                     all_tag_counts[w] += 1
             # cleaned_list = [cleanup(word.string) for word in doc if not is_noise(word)]
             feats = []
-            for tag in all_tag_counts:
+            for tag in POS_TAGS:
                 feats.append(all_tag_counts[tag])
             feats.append(len(noun_chunks))          # num_noun_chunks
             feats.append(len(sentences))            # num_sentences
@@ -122,7 +141,7 @@ class DataFeatures:
             if save_nl: doc_objs.append(doc)
 
         if save_nl: util.save_pkl('preprocess/doc_objs.pkl', doc_objs)
-        return np.array(feature_matrix)
+        self.nl_matrix = np.array(feature_matrix)
 
 
 def prep_weebit():
@@ -153,6 +172,8 @@ def prep_weebit():
 def load_weebit():
     return pd.read_csv('data/weebit/weebit.csv')
 
+def load_weebit_generate():
+    return pd.read_csv('data/weebit/weebit_generate.csv')
 
 def check_non_ascii():
     counter = 0

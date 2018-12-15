@@ -49,13 +49,44 @@ class Algorithm:
     def train(self, x, y):
         self.clf.fit(x, y)
         preds = self.predict(x)
+
         return util.get_acc(y, preds)
 
     def eval(self, x, y):
         predictions = self.predict(x)
+
         test_error = util.get_acc(y, predictions)
         prfs = precision_recall_fscore_support(y, predictions)
         return test_error, prfs
+
+    def run_preds(self, train_data, data, features, clf_options={}, wc_params={}, tfidf_params={}):
+        """
+        Arguments
+            data: DataFeatures object
+            features: list of features (\subset ['word count', 'tfidf', 'nl'])
+            clf_options: dictionary of sklearn classifier options
+            wc_params: dictionary of count vectorizer params
+            tfidf_params: dictionary of tfidf vecorizer params
+        """
+        self.clf = self.model(**clf_options)
+
+        train_x = train_data.get_joint_matrix(features, wc_params, tfidf_params)
+        train_y = train_data.labels
+        print(train_x.shape)
+
+        val_x = data.get_joint_matrix(features, wc_params, tfidf_params)
+        val_y = data.labels
+        print(val_x.shape)
+
+        train_acc = self.train(train_x, train_y)
+        test_acc, prfs = self.eval(val_x, val_y)
+
+        # Add a row to results
+        row = (self.name, str(features), str(clf_options),
+                str(wc_params), tfidf_params, train_acc,
+                test_acc, prfs)
+        self.results.loc[len(self.results)] = row
+        self.save()
 
 
     def run(self, data, features, clf_options={}, wc_params={}, tfidf_params={}):

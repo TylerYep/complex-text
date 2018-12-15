@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np 
+import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
 from tqdm import tqdm
@@ -37,7 +37,7 @@ def make_vocab_and_dataset():
         vocab += Counter(x)
 
     words = ['UNK'] + [w for w, c in vocab.items() if c > 5]
-    
+
     word2ind = {w : i for i, w in enumerate(words)}
     ind2word = {i : w for i, w in enumerate(words)}
 
@@ -63,9 +63,10 @@ class DataG(Dataset):
         return np.array(self.texts[ix][0])
 
 if __name__ == "__main__":
-    #make_vocab_and_dataset()
-    #d = DataG(2, 1)
-    #word2ind, ind2word = util.load_pkl('generate/vocab_g.pkl')
+    # make_vocab_and_dataset()
+    d = DataG(2, 1)
+    print(d.texts)
+    word2ind, ind2word = util.load_pkl('generate/vocab_g.pkl')
     print(word2ind)
     for x in d:
         print(x)

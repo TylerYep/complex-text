@@ -83,22 +83,28 @@ Here, we explored our data to see which of the natural language features were th
 Our baseline model used a Dummy classifier to randomly predict results, based on the probability of each complexity of each text appearing. In our dataset, 630/2226 examples were level 2, 789/2226 examples were level 3, and 807/2226 examples were level 4. Our baseline simply predicted each level of difficulty randomly with probabilities equal these proportions, and obtained $37.2\%$ accuracy on the validation set.
 
 \paragraph{Logistic Regression}
-Logistic Regression was very successful, with the highest accuracy on the validation set at $79.9\%$. The hyperparameters for Logistic Regression were type of regularization ($L_1$ or $L_2$), and the amount to regularize by, $1/C$. We conducted a grid search, trying $C$ as powers of $10$ between $0.001$ and $100$ inclusive. We found that $L_1$ regularization generally performed better than $L_2$ regularization. This is likely because probability $L_1$ results in sparse weights, which was advantageous in identifying and reducing the effects of less-useful features. The effect of changing the $C$ parameter is illustrated in Figure \ref{c}. We see that the $L_1$ regularization is more sensitive the changes in $C$.
+Logistic Regression was very successful, with the highest accuracy on the validation set at $79.9\%$. The hyperparameters for Logistic Regression were type of regularization ($L_1$ or $L_2$), and the amount to regularize by, $1/C$. We conducted a grid search, trying $C$ as powers of $10$ between $0.001$ and $100$ inclusive. We found that $L_1$ regularization generally performed better than $L_2$ regularization. This is likely because probability $L_1$ results in sparse weights, which was advantageous in identifying and reducing the effects of less-useful features. The effect of changing the $C$ parameter is illustrated in Figure \ref{c}. We see that the $L_1$ regularization is more sensitive to changes in $C$.
 
 \begin{figure}[h]
     \centering
-    \begin{subfigure}[c]{0.45\textwidth}
+    \begin{subfigure}[c]{0.32\textwidth}
         \includegraphics[width=\textwidth]{figs/c.png}
         \caption{Effect of $C$ on validation accuracy}
         \label{c}
     \end{subfigure}
-    \begin{subfigure}[d]{0.4\textwidth}
+    \begin{subfigure}[d]{0.32\textwidth}
         \includegraphics[width=\textwidth]{figs/e.png}
         \caption{AdaBoost w/ different parameters}
         \label{d}
     \end{subfigure}
+    \begin{subfigure}[d]{0.32\textwidth}
+        \includegraphics[width=\textwidth]{figs/ConfusionMatrix.png}
+        \caption{Confusion Matrix for Logistic Regression}
+        \label{conf}
+    \end{subfigure}
     \caption{Parameter Tuning}
 \end{figure}
+
 
 \paragraph{AdaBoost}
 Another successful classifier was AdaBoost. Given the relatively high results we obtained from using only average sentence length as a feature, we expected an ensemble of basic classifiers to perform much better. After tuning the number of classifiers and the learning rate, AdaBoost achieved $79.7\%$ on the validation set. In Figure \ref{d}, we have a plot of AdaBoost test accuracy using different learning rates and estimators (using only word count + natural language features).
@@ -134,19 +140,26 @@ To address this problem, we can use a Recurrent Neural Network. The architecture
 %TODO tyler: 
 % Hyperparameter tuning
 % Some pretty loss plots and critical comparison with previous models
+In particular, using only natural language features we were able to obtain better results than the previous classifiers did when using both natural language features and word count. 
 
-
-
-TODO include specifics about the implementation?
 
 \section{Text Generation}
 The final goal of this project was to experiment with generating texts of different complexity levels. In this project we focus on grammar and sentence/document structure as the primary determinant of complexity. Therefore we employ LSTM models again, but this time for sequence prediction instead of classification. In particular given the sequence of part of speech encodings described in the previous section, the model learns $p(pos^{t+1} \mid pos^{t}, pos^{t-1},\dots, pos^{1})$. We can sample from this probability distribution to generate sequences of part of speech tags.
 
 In the encoding we introduce two special characters '$<$', and '$>$' which are used to signify the beginning and the end of a text. These are used so that the model learns when to end a text, which is useful for sampling. Apart from these changes, the model architecure is equivalent to that in the previous section.
 
-%TODO N-grams infeasible, why?
+Note that we chose to use LSTM models instead of n-grams because long-range dependencies (longer than $n$) are difficult to learn. Furthermore, complexity of $n$-grams is of the scale $|V|^n$. In this case our vocabulary had size $43$. Therefore for $n=4$ we would already have over 3 million possible sequences to store. 
 
 \subsection{Training}
+The hyperparameters we selected for the generation model were \textit{N\_HIDDEN} = 100, \textit{N\_LAYERS} = 3, \textit{EMBED\_DIM} = 64, \textit{LR} = 0.0001. We found that this model was able to adequately learn in the different difficulty levels without being over complex (and therefore taking very long to train), the training loss curves are shown in Figure \ref{gtrain}. We think that the level 3 and 4 loss curves acheive higher loss because there are more level 3 and level 4 training examples, and the more varied sentence structure of the higher levels makes it a harder distribution to learn.
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.3]{figs/g_training.png}
+    \end{center}
+    \caption{Training loss curves for text generation models}
+    \label{gtrain}
+\end{figure}
 
 \subsection{Sampling}
 Let $G$ be the trained model, $V$ be the vocabulary, $D = |V|$, and $x$ be a document. It is an approximation such that \[G(x_1,x_2,\dots,x_{t-1}) \approx \begin{bmatrix}
@@ -169,24 +182,18 @@ def sample(temp):
 \end{verbatim}
 Here the parameter \textit{temp}, inspired by language and music generation models, controls the rigidness of the sampling. In particular, low values for temperature result in more grammatically correct sentences, and higher values encourage more diverse sentence structures. \textit{normalize} is a function that normalizes a vector so that it sums to 1, and \textit{choose(prob)} is a function that samples from a multinomial distribution with parameter \textit{prob}. 
 
-TODO substitution part (optional?). 
+TODO substitution part?? 
 
-\section{Learning}
-TODO training results and some example sentences from each difficulty level.
-
+\subsection{Examples}
+TODO
 
 \section{Conclusion}
 TODO
 
+\newpage
 
-\begin{enumerate}
-    \item \textbf{Hyperparameter Tuning \& Cross Validation} To further tune the hyperparameters of our models, we plan to employ random search with k-fold validation. Random search has a greater chance of exploring the whole parameter space \cite{random}, and will allow us to incorporate the validation set in training. Furthermore, since the score in k-fold validation is computed as an average over the performance on each fold, we are less likely to overfit to any validation set. Hopefully, using these methods, we will further improve the performance of our models.
-\end{enumerate}
-
-\section{Contributions, Code}
-Harry - Word count, Tf-Idf feature extraction, exploration of natural language features, experiments with Logistic Regression, SVM, Naive Bayes, organizational code.\\
-Tyler - Natural language feature extraction, AdaBoost, Naive Bayes, baseline results \\
-Code can be found at: https://github.com/TylerYep/complex-text. 
+\section{Contributions, Code} 
+Harry - Word count, Tf-Idf feature extraction, exploration of natural language features, experiments with Logistic Regression, SVM, Naive Bayes, organizational code. Implementation of LSTM models, and sampling method. Training of generation model.  \\ Tyler - Natural language feature extraction, AdaBoost, Naive Bayes, baseline results \\ Code can be found at: https://github.com/TylerYep/complex-text. TODO
 
 %\section{Data and Resources}
 %\begin{enumerate}
